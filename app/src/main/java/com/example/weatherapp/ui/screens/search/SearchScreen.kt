@@ -8,6 +8,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -32,11 +35,13 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -48,6 +53,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.weatherapp.R
+import com.example.weatherapp.ui.viewmodel.SearchUiState
+import com.example.weatherapp.ui.viewmodel.SearchViewModel
 import kotlinx.coroutines.delay
 
 private enum class WeatherIconType(val iconResId: Int) {
@@ -130,12 +137,17 @@ private fun getSearchFieldIconColor(): Color {
 }
 
 @Composable
-fun SearchScreen() {
+fun SearchScreen(viewModel: SearchViewModel = viewModel()) {
     var searchQuery by remember { mutableStateOf("") }
+    val uiState by viewModel.uiState.collectAsState()
     val gradientColors = getGradientColors()
     val textColor = getTextColor()
     val cardColor = getCardColor()
     val cardTextColor = getCardTextColor()
+
+    androidx.compose.runtime.LaunchedEffect(searchQuery) {
+        viewModel.searchLocations(searchQuery)
+    }
 
     Box(
         modifier = Modifier
@@ -227,65 +239,173 @@ fun SearchScreen() {
                     singleLine = true
                 )
 
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp, vertical = 32.dp),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = cardColor
+                when (val currentState = uiState) {
+                    is SearchUiState.Empty -> {
+                        EmptyStateCard(
+                            cardColor = cardColor,
+                            cardTextColor = cardTextColor
                         )
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                    }
+                    is SearchUiState.Loading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(80.dp)
-                                    .background(
-                                        brush = Brush.radialGradient(
-                                            colors = listOf(
-                                                Color(0xFF3B82F6).copy(alpha = 0.2f),
-                                                Color(0xFF1E40AF).copy(alpha = 0.1f)
-                                            )
-                                        ),
-                                        shape = RoundedCornerShape(40.dp)
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Place,
-                                    contentDescription = "Ubicación",
-                                    tint = if (isSystemInDarkTheme()) {
-                                        Color(0xFF64B5F6)
-                                    } else {
-                                        Color(0xFF2196F3)
-                                    },
-                                    modifier = Modifier.size(48.dp)
-                                )
-                            }
                             Text(
-                                text = "Escribe el nombre de una ciudad para comenzar",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = cardTextColor,
-                                textAlign = TextAlign.Center
-                            )
-                            Text(
-                                text = "Busca cualquier ciudad del mundo para ver su pronóstico del clima",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = cardTextColor.copy(alpha = 0.7f),
-                                textAlign = TextAlign.Center
+                                text = "Buscando...",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = textColor
                             )
                         }
+                    }
+                    is SearchUiState.LocationsLoaded -> {
+                        LocationsList(
+                            locations = currentState.locations,
+                            textColor = textColor,
+                            cardColor = cardColor,
+                            cardTextColor = cardTextColor
+                        )
+                    }
+                    is SearchUiState.Error -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = currentState.message,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = Color.Red
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyStateCard(
+    cardColor: Color,
+    cardTextColor: Color
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 32.dp),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = cardColor
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .background(
+                            brush = Brush.radialGradient(
+                                colors = listOf(
+                                    Color(0xFF3B82F6).copy(alpha = 0.2f),
+                                    Color(0xFF1E40AF).copy(alpha = 0.1f)
+                                )
+                            ),
+                            shape = RoundedCornerShape(40.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Place,
+                        contentDescription = "Ubicación",
+                        tint = if (isSystemInDarkTheme()) {
+                            Color(0xFF64B5F6)
+                        } else {
+                            Color(0xFF2196F3)
+                        },
+                        modifier = Modifier.size(48.dp)
+                    )
+                }
+                Text(
+                    text = "Escribe el nombre de una ciudad para comenzar",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = cardTextColor,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = "Busca cualquier ciudad del mundo para ver su pronóstico del clima",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = cardTextColor.copy(alpha = 0.7f),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LocationsList(
+    locations: List<com.example.weatherapp.data.model.Location>,
+    textColor: Color,
+    cardColor: Color,
+    cardTextColor: Color
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 8.dp)
+    ) {
+        items(locations) { location ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .clickable { /* TODO: Navegar a detalles */ },
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = cardColor
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Place,
+                        contentDescription = null,
+                        tint = if (isSystemInDarkTheme()) {
+                            Color(0xFF64B5F6)
+                        } else {
+                            Color(0xFF2196F3)
+                        },
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = location.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = cardTextColor
+                        )
+                        Text(
+                            text = "${location.region}, ${location.country}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = cardTextColor.copy(alpha = 0.7f)
+                        )
                     }
                 }
             }

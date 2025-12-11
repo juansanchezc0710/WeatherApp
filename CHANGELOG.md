@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 
+### [Task #14] Configurar Koin para el repositorio
+- RepositoryModule creado para inyección de dependencias del repositorio
+- WeatherRepositoryImpl registrado como singleton en Koin
+- Integración de repositoryModule en appModule
+- Dependencias inyectadas: WeatherApiService y API Key
+
+### [Task #13] Implementar el repositorio
+- WeatherRepositoryImpl creado implementando WeatherRepository
+- Método searchLocations() para búsqueda de ubicaciones con mapeo a dominio
+- Método getWeatherForecast() para obtener pronóstico con mapeo a dominio
+- Manejo de errores con Result<T>
+- Uso de WeatherMapper para convertir modelos de data a domain
+
+### [Task #12] Crear interfaz del repositorio
+- WeatherRepository interface creada en domain layer
+- Método searchLocations() definido retornando Result<List<Location>>
+- Método getWeatherForecast() definido retornando Result<Weather>
+- Interfaz siguiendo Dependency Inversion Principle
+
 ### [Task #17] Crear ViewModel para detalles del clima
 - WeatherDetailsViewModel creado para gestionar el estado y lógica de la pantalla de detalles
 - WeatherDetailsUiState como data class con weatherData, isLoading y error

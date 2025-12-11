@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### [Task #4] Crear modelos de datos de la API
+- Modelos de datos para la capa Data (Location, WeatherResponse)
+- Modelos de dominio para la capa Domain (Location, Weather)
+- Dependencia Gson agregada para serialización JSON
+- Estructura Clean Architecture implementada
+
 ### [Task #3] Crear pantalla principal de búsqueda
 - Pantalla de búsqueda con toolbar y campo de búsqueda
 - Icono animado del clima en toolbar

@@ -7,13 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.example.weatherapp.ui.screens.search.SearchScreen
-import com.example.weatherapp.ui.screens.splash.SplashScreen
+import androidx.navigation.compose.rememberNavController
+import com.example.weatherapp.navigation.NavGraph
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -26,17 +22,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    var showSplash by remember { mutableStateOf(true) }
-                    
-                    if (showSplash) {
-                        SplashScreen(
-                            onNavigateToSearch = {
-                                showSplash = false
-                            }
-                        )
-                    } else {
-                        SearchScreen()
-                    }
+                    val navController = rememberNavController()
+                    NavGraph(navController = navController)
                 }
             }
         }

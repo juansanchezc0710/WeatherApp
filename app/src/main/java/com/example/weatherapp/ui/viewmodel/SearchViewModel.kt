@@ -9,18 +9,17 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
  * UI State for the search screen.
  */
-sealed class SearchUiState {
-    data object Empty : SearchUiState()
-    data object Loading : SearchUiState()
-    data class LocationsLoaded(val locations: List<Location>) : SearchUiState()
-    data class Error(val message: String) : SearchUiState()
-}
+data class SearchUiState(
+    val searchQuery: String = "",
+    val locations: List<Location> = emptyList(),
+    val isLoading: Boolean = false,
+    val error: String? = null
+)
 
 /**
  * ViewModel for the search screen.
@@ -32,54 +31,71 @@ class SearchViewModel(
     private val apiKey: String
 ) : ViewModel() {
     
-    private val _uiState = MutableStateFlow<SearchUiState>(SearchUiState.Empty)
+    private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
     
     private var searchJob: Job? = null
     private val searchDebounceTime = 500L
     
     /**
-     * Searches for locations based on the query with debouncing.
+     * Handles search query changes with debounce.
      */
-    fun searchLocations(query: String) {
+    fun onSearchQueryChanged(query: String) {
+        _uiState.value = _uiState.value.copy(
+            searchQuery = query,
+            error = null
+        )
+        
         searchJob?.cancel()
         
         if (query.isBlank()) {
-            _uiState.update { SearchUiState.Empty }
+            _uiState.value = _uiState.value.copy(
+                locations = emptyList(),
+                isLoading = false
+            )
             return
         }
         
         searchJob = viewModelScope.launch {
             delay(searchDebounceTime)
-            
-            _uiState.update { SearchUiState.Loading }
-            
-            try {
-                val locations = apiService.searchLocations(
-                    apiKey = apiKey,
-                    query = query
-                )
-                _uiState.update {
-                    if (locations.isEmpty()) {
-                        SearchUiState.Error("No se encontraron ubicaciones")
-                    } else {
-                        SearchUiState.LocationsLoaded(locations)
-                    }
-                }
-            } catch (e: Exception) {
-                _uiState.update {
-                    SearchUiState.Error(
-                        e.message ?: "Error al buscar ubicaciones"
-                    )
-                }
-            }
+            performLocationSearch(query)
         }
     }
     
     /**
-     * Clears the current state.
+     * Performs the search operation.
      */
-    fun clearState() {
-        _uiState.update { SearchUiState.Empty }
+    private suspend fun performLocationSearch(query: String) {
+        _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+        
+        try {
+            val locations = apiService.searchLocations(
+                apiKey = apiKey,
+                query = query
+            )
+            _uiState.value = _uiState.value.copy(
+                locations = locations,
+                isLoading = false,
+                error = null
+            )
+        } catch (e: Exception) {
+            _uiState.value = _uiState.value.copy(
+                locations = emptyList(),
+                isLoading = false,
+                error = e.message ?: "Error al buscar ubicaciones"
+            )
+        }
+    }
+    
+    /**
+     * Refreshes the current search.
+     */
+    fun refreshLocationSearch() {
+        val currentQuery = _uiState.value.searchQuery
+        if (currentQuery.isNotBlank()) {
+            viewModelScope.launch {
+                performLocationSearch(currentQuery)
+            }
+        }
     }
 }

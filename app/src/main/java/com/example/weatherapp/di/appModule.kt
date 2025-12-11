@@ -6,6 +6,5 @@ import org.koin.dsl.module
  * Main application module that combines all feature modules.
  */
 val appModule = module {
-    includes(networkModule, repositoryModule, viewModelModule)
+    includes(networkModule, repositoryModule, useCaseModule, viewModelModule)
 }
-

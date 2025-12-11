@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### [Task #17] Crear ViewModel para detalles del clima
+- WeatherDetailsViewModel creado para gestionar el estado y lógica de la pantalla de detalles
+- WeatherDetailsUiState como data class con weatherData, isLoading y error
+- Función loadWeatherForecastData() que obtiene datos reales desde WeatherApiService
+- Función refreshWeatherForecastData() para actualizar los datos
+- Integración con Koin para inyección de dependencias (WeatherApiService y API Key)
+- WeatherDetailScreen actualizado para usar koinViewModel() y observar el estado
+- LaunchedEffect para cargar datos automáticamente al navegar a la pantalla
+- Manejo de estados: loading, error y datos cargados
+- Mapeo de datos desde API (WeatherResponse) a modelos de dominio (Weather)
+
 ### [Task #16] Agregar Navigation Compose
 - Dependencia Navigation Compose agregada (version 2.8.0)
 - NavGraph creado con rutas para Splash, Search y Details

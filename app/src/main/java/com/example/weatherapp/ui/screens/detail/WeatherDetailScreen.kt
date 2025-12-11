@@ -1,6 +1,7 @@
 package com.example.weatherapp.ui.screens.detail
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,31 +22,48 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import coil.compose.AsyncImage
 import com.example.weatherapp.R
 import com.example.weatherapp.domain.model.CurrentWeather
 import com.example.weatherapp.domain.model.ForecastDay
 import com.example.weatherapp.domain.model.Weather
 import com.example.weatherapp.ui.theme.WeatherAppTheme
+import com.example.weatherapp.ui.viewmodel.WeatherDetailsViewModel
+import org.koin.androidx.compose.koinViewModel
 
 private val GRADIENT_COLORS_LIGHT = listOf(
     Color(0xFF3B82F6),
@@ -93,82 +111,39 @@ private fun getCardTextColor(): Color {
     }
 }
 
-@Composable
-private fun getCardIconColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFFE0E0E0).copy(alpha = 0.7f)
-    } else {
-        Color(0xFF757575)
-    }
-}
-
 /**
  * Weather detail screen showing current weather and forecast.
- * 
+ *
  * @param locationName Name of the location to display weather for
  * @param onBackClick Callback when back button is clicked
- * 
- * TODO: This screen will be updated to use WeatherDetailsViewModel when Issue #17 is implemented.
- * For now, it displays mock data.
  */
 @Composable
 fun WeatherDetailScreen(
     locationName: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    viewModel: WeatherDetailsViewModel = koinViewModel()
 ) {
-    // TODO: Replace with ViewModel when Issue #17 is implemented
-    // For now, using mock data to enable navigation
-    val mockWeather = remember {
-        Weather(
-            locationName = locationName,
-            current = CurrentWeather(
-                temperature = 18.0,
-                condition = "Parcialmente nublado",
-                conditionIcon = "//cdn.weatherapi.com/weather/64x64/day/116.png",
-                feelsLike = 17.0,
-                humidity = 65,
-                windSpeed = 12.5,
-                pressure = 1013.0
-            ),
-            forecast = listOf(
-                ForecastDay(
-                    date = "2024-01-15",
-                    maxTemp = 20.0,
-                    minTemp = 12.0,
-                    avgTemp = 16.0,
-                    condition = "Parcialmente nublado",
-                    conditionIcon = "//cdn.weatherapi.com/weather/64x64/day/116.png",
-                    avgHumidity = 65
-                ),
-                ForecastDay(
-                    date = "2024-01-16",
-                    maxTemp = 22.0,
-                    minTemp = 14.0,
-                    avgTemp = 18.0,
-                    condition = "Soleado",
-                    conditionIcon = "//cdn.weatherapi.com/weather/64x64/day/113.png",
-                    avgHumidity = 60
-                ),
-                ForecastDay(
-                    date = "2024-01-17",
-                    maxTemp = 19.0,
-                    minTemp = 11.0,
-                    avgTemp = 15.0,
-                    condition = "Nublado",
-                    conditionIcon = "//cdn.weatherapi.com/weather/64x64/day/119.png",
-                    avgHumidity = 75
-                )
-            )
-        )
+    val uiState by viewModel.uiState.collectAsState()
+
+    var pullOffset by remember { mutableFloatStateOf(0f) }
+    var isRefreshing by remember { mutableStateOf(false) }
+
+    LaunchedEffect(locationName) {
+        if (locationName.isNotBlank()) {
+            viewModel.loadWeatherForecastData(locationName)
+        }
     }
-    
+
+    LaunchedEffect(uiState.isLoading) {
+        if (!uiState.isLoading) {
+            isRefreshing = false
+        }
+    }
+
     val gradientColors = getGradientColors()
     val textColor = getTextColor()
     val cardColor = getCardColor()
     val cardTextColor = getCardTextColor()
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
-    val forecastDays = mockWeather.forecast.take(3)
 
     Box(
         modifier = Modifier
@@ -200,72 +175,299 @@ fun WeatherDetailScreen(
             },
             containerColor = Color.Transparent
         ) { paddingValues ->
-            if (isLandscape) {
-                Row(
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues)
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        .pointerInput(Unit) {
+                            detectDragGestures(
+                                onDragEnd = {
+                                    if (pullOffset > 100f && !isRefreshing) {
+                                        isRefreshing = true
+                                        viewModel.refreshWeatherForecastData()
+                                    }
+                                    pullOffset = 0f
+                                }
+                            ) { change, dragAmount ->
+                                if (change.position.y > 0 && dragAmount.y > 0) {
+                                    pullOffset = (pullOffset + dragAmount.y).coerceAtMost(150f)
+                                } else if (pullOffset > 0) {
+                                    pullOffset = (pullOffset + dragAmount.y).coerceAtLeast(0f)
+                                }
+                            }
+                        }
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        WeatherLocationHeader(mockWeather.locationName, textColor)
-                        CurrentWeatherInfoCard(mockWeather.current, textColor, cardColor, cardTextColor)
-                    }
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(
-                            text = "Pronóstico (3 días)",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = textColor,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                        forecastDays.forEach { forecastDay ->
-                            WeatherForecastDayCard(forecastDay, cardColor, cardTextColor)
+                    when {
+                        uiState.isLoading -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(color = textColor)
+                            }
+                        }
+
+                        uiState.error != null -> {
+                            Column(
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 24.dp, vertical = 16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.Center,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.KeyboardArrowDown,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(16.dp),
+                                            tint = textColor.copy(alpha = 0.7f)
+                                        )
+                                        Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                                        Text(
+                                            text = "Desliza para recargar",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = textColor.copy(alpha = 0.7f),
+                                            textAlign = TextAlign.Center,
+                                            fontSize = 12.sp
+                                        )
+                                    }
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .weight(1f),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 24.dp, vertical = 32.dp),
+                                        shape = RoundedCornerShape(20.dp),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = cardColor
+                                        )
+                                    ) {
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(32.dp),
+                                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(80.dp)
+                                                    .background(
+                                                        brush = Brush.radialGradient(
+                                                            colors = listOf(
+                                                                Color(0xFFFF9800).copy(alpha = 0.2f),
+                                                                Color(0xFFFF5722).copy(alpha = 0.1f)
+                                                            )
+                                                        ),
+                                                        shape = RoundedCornerShape(40.dp)
+                                                    ),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Icon(
+                                                    painter = painterResource(id = R.drawable.ic_no_internet_connection),
+                                                    contentDescription = "Sin conexión",
+                                                    tint = if (isSystemInDarkTheme()) {
+                                                        Color(0xFFFFB74D)
+                                                    } else {
+                                                        Color(0xFFFF9800)
+                                                    },
+                                                    modifier = Modifier.size(48.dp)
+                                                )
+                                            }
+                                            Text(
+                                                text = "Sin conexión a internet",
+                                                style = MaterialTheme.typography.titleLarge,
+                                                fontWeight = FontWeight.Bold,
+                                                color = cardTextColor,
+                                                textAlign = TextAlign.Center
+                                            )
+                                            Text(
+                                                text = uiState.error
+                                                    ?: "No se pudo cargar el pronóstico del clima",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = cardTextColor.copy(alpha = 0.7f),
+                                                textAlign = TextAlign.Center
+                                            )
+                                            Text(
+                                                text = "Verifica tu conexión e intenta nuevamente",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = cardTextColor.copy(alpha = 0.6f),
+                                                textAlign = TextAlign.Center
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        uiState.weatherData != null -> {
+                            uiState.weatherData?.let { weatherData ->
+                                val configuration = LocalConfiguration.current
+                                val isLandscape =
+                                    configuration.screenWidthDp > configuration.screenHeightDp
+                                val forecastDays = weatherData.forecast.take(3)
+
+                                if (isLandscape) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(16.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                    ) {
+                                        Column(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .verticalScroll(rememberScrollState()),
+                                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                                        ) {
+                                            WeatherLocationHeader(
+                                                weatherData.locationName,
+                                                textColor
+                                            )
+                                            CurrentWeatherInfoCard(
+                                                weatherData.current,
+                                                textColor,
+                                                cardColor,
+                                                cardTextColor
+                                            )
+                                        }
+                                        Column(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .verticalScroll(rememberScrollState()),
+                                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            Text(
+                                                text = "Pronóstico (3 días)",
+                                                style = MaterialTheme.typography.titleLarge,
+                                                fontWeight = FontWeight.Bold,
+                                                color = textColor,
+                                                modifier = Modifier.padding(bottom = 8.dp)
+                                            )
+                                            forecastDays.forEach { forecastDay ->
+                                                WeatherForecastDayCard(
+                                                    forecastDay,
+                                                    cardColor,
+                                                    cardTextColor
+                                                )
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    LazyColumn(
+                                        modifier = Modifier.fillMaxSize(),
+                                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                                        contentPadding = PaddingValues(vertical = 8.dp)
+                                    ) {
+                                        item {
+                                            WeatherLocationHeader(
+                                                weatherData.locationName,
+                                                textColor
+                                            )
+                                        }
+
+                                        item {
+                                            CurrentWeatherInfoCard(
+                                                weatherData.current,
+                                                textColor,
+                                                cardColor,
+                                                cardTextColor
+                                            )
+                                        }
+
+                                        item {
+                                            Text(
+                                                text = "Pronóstico (3 días)",
+                                                style = MaterialTheme.typography.titleLarge,
+                                                fontWeight = FontWeight.Bold,
+                                                color = textColor,
+                                                modifier = Modifier.padding(
+                                                    horizontal = 24.dp,
+                                                    vertical = 16.dp
+                                                )
+                                            )
+                                        }
+
+                                        items(forecastDays) { forecastDay ->
+                                            WeatherForecastDayCard(
+                                                forecastDay,
+                                                cardColor,
+                                                cardTextColor
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(color = textColor)
+                            }
                         }
                     }
                 }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(vertical = 8.dp)
-                ) {
-                    item {
-                        WeatherLocationHeader(mockWeather.locationName, textColor)
-                    }
 
-                    item {
-                        CurrentWeatherInfoCard(mockWeather.current, textColor, cardColor, cardTextColor)
-                    }
+                if (uiState.error != null && (pullOffset > 0 || uiState.isLoading)) {
+                    val rotation by animateFloatAsState(
+                        targetValue = if (pullOffset > 60f) 180f else 0f,
+                        animationSpec = tween(durationMillis = 200),
+                        label = "rotation"
+                    )
+                    val alpha by animateFloatAsState(
+                        targetValue = if (pullOffset > 0 || uiState.isLoading) 1f else 0f,
+                        animationSpec = tween(durationMillis = 200),
+                        label = "alpha"
+                    )
 
-                    item {
-                        Text(
-                            text = "Pronóstico (3 días)",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = textColor,
-                            modifier = Modifier.padding(
-                                horizontal = 24.dp,
-                                vertical = 16.dp
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = 8.dp)
+                            .alpha(alpha)
+                    ) {
+                        if (uiState.isLoading && pullOffset == 0f) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = textColor
                             )
-                        )
-                    }
-
-                    items(forecastDays) { forecastDay ->
-                        WeatherForecastDayCard(forecastDay, cardColor, cardTextColor)
+                        } else if (pullOffset > 0) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowDown,
+                                    contentDescription = "Deslizar para recargar",
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .rotate(rotation),
+                                    tint = textColor.copy(alpha = 0.7f)
+                                )
+                                Text(
+                                    text = if (pullOffset > 60f) "Suelta" else "Desliza",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = textColor.copy(alpha = 0.6f),
+                                    fontSize = 10.sp
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -588,10 +790,7 @@ private fun formatForecastDate(dateString: String): String {
 @Composable
 private fun WeatherDetailsLightPreview() {
     WeatherAppTheme(darkTheme = false) {
-        WeatherDetailScreen(
-            locationName = "Bogotá",
-            onBackClick = {}
-        )
+        WeatherDetailsWithDataPreview()
     }
 }
 
@@ -605,9 +804,153 @@ private fun WeatherDetailsLightPreview() {
 @Composable
 private fun WeatherDetailsDarkPreview() {
     WeatherAppTheme(darkTheme = true) {
-        WeatherDetailScreen(
-            locationName = "Bogotá",
-            onBackClick = {}
+        WeatherDetailsWithDataPreview()
+    }
+}
+
+@Composable
+private fun WeatherDetailsWithDataPreview() {
+    val mockWeatherData = Weather(
+        locationName = "Bogotá",
+        current = CurrentWeather(
+            temperature = 18.0,
+            condition = "Parcialmente nublado",
+            conditionIcon = "//cdn.weatherapi.com/weather/64x64/day/116.png",
+            feelsLike = 17.0,
+            humidity = 65,
+            windSpeed = 12.5,
+            pressure = 1013.0
+        ),
+        forecast = listOf(
+            ForecastDay(
+                date = "2024-01-15",
+                maxTemp = 20.0,
+                minTemp = 12.0,
+                avgTemp = 16.0,
+                condition = "Parcialmente nublado",
+                conditionIcon = "//cdn.weatherapi.com/weather/64x64/day/116.png",
+                avgHumidity = 65
+            )
         )
+    )
+
+    val gradientColors = getGradientColors()
+    val textColor = getTextColor()
+    val cardColor = getCardColor()
+    val cardTextColor = getCardTextColor()
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
+    val forecastDays = mockWeatherData.forecast.take(3)
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = gradientColors
+                )
+            )
+    ) {
+        Scaffold(
+            topBar = {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .statusBarsPadding()
+                        .padding(horizontal = 8.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = {}) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Volver",
+                            tint = textColor
+                        )
+                    }
+                }
+            },
+            containerColor = Color.Transparent
+        ) { paddingValues ->
+            if (isLandscape) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        WeatherLocationHeader(mockWeatherData.locationName, textColor)
+                        CurrentWeatherInfoCard(
+                            mockWeatherData.current,
+                            textColor,
+                            cardColor,
+                            cardTextColor
+                        )
+                    }
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "Pronóstico (3 días)",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = textColor,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        forecastDays.forEach { forecastDay ->
+                            WeatherForecastDayCard(forecastDay, cardColor, cardTextColor)
+                        }
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp)
+                ) {
+                    item {
+                        WeatherLocationHeader(mockWeatherData.locationName, textColor)
+                    }
+
+                    item {
+                        CurrentWeatherInfoCard(
+                            mockWeatherData.current,
+                            textColor,
+                            cardColor,
+                            cardTextColor
+                        )
+                    }
+
+                    item {
+                        Text(
+                            text = "Pronóstico (3 días)",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = textColor,
+                            modifier = Modifier.padding(
+                                horizontal = 24.dp,
+                                vertical = 16.dp
+                            )
+                        )
+                    }
+
+                    items(forecastDays) { forecastDay ->
+                        WeatherForecastDayCard(forecastDay, cardColor, cardTextColor)
+                    }
+                }
+            }
+        }
     }
 }

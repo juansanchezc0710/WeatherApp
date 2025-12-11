@@ -40,6 +40,7 @@ import com.example.weatherapp.R
 import com.example.weatherapp.ui.theme.GradientColorsDark
 import com.example.weatherapp.ui.theme.GradientColorsLight
 import com.example.weatherapp.ui.theme.getTextColor
+import com.example.weatherapp.ui.theme.WeatherAppTheme
 import kotlinx.coroutines.delay
 
 private enum class SplashWeatherIconType(val iconResId: Int) {
@@ -193,11 +194,14 @@ private fun WeatherIcon(
     showBackground = true,
     backgroundColor = 0xFF3B82F6,
     showSystemUi = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_NO,
     device = "spec:width=411dp,height=891dp"
 )
 @Composable
 private fun SplashScreenLightPreview() {
-    Splash(alpha = 1f)
+    WeatherAppTheme(darkTheme = false) {
+        Splash(alpha = 1f)
+    }
 }
 
 @Preview(
@@ -210,5 +214,7 @@ private fun SplashScreenLightPreview() {
 )
 @Composable
 private fun SplashScreenDarkPreview() {
-    Splash(alpha = 1f)
+    WeatherAppTheme(darkTheme = true) {
+        Splash(alpha = 1f)
+    }
 }

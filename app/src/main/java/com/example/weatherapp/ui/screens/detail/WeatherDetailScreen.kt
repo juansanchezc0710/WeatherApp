@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -252,35 +253,49 @@ fun WeatherDetailScreen(
                                                     ),
                                                 contentAlignment = Alignment.Center
                                             ) {
-                                                Icon(
-                                                    painter = painterResource(id = R.drawable.ic_no_internet_connection),
-                                                    contentDescription = "Sin conexión",
-                                                    tint = if (isSystemInDarkTheme()) {
-                                                        IconOrangeLight
-                                                    } else {
-                                                        IconOrange
-                                                    },
-                                                    modifier = Modifier.size(48.dp)
-                                                )
+                                                if (uiState.error == "Sin conexión a internet") {
+                                                    Icon(
+                                                        painter = painterResource(id = R.drawable.ic_no_internet_connection),
+                                                        contentDescription = "Sin conexión",
+                                                        tint = if (isSystemInDarkTheme()) {
+                                                            IconOrangeLight
+                                                        } else {
+                                                            IconOrange
+                                                        },
+                                                        modifier = Modifier.size(48.dp)
+                                                    )
+                                                } else {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Warning,
+                                                        contentDescription = "Error",
+                                                        tint = if (isSystemInDarkTheme()) {
+                                                            IconOrangeLight
+                                                        } else {
+                                                            IconOrange
+                                                        },
+                                                        modifier = Modifier.size(48.dp)
+                                                    )
+                                                }
                                             }
                                             Text(
-                                                text = "Sin conexión a internet",
+                                                text = if (uiState.error == "Sin conexión a internet") {
+                                                    "Sin conexión a internet"
+                                                } else {
+                                                    "Error"
+                                                },
                                                 style = MaterialTheme.typography.titleLarge,
                                                 fontWeight = FontWeight.Bold,
                                                 color = cardTextColor,
                                                 textAlign = TextAlign.Center
                                             )
                                             Text(
-                                                text = uiState.error
-                                                    ?: "No se pudo cargar el pronóstico del clima",
+                                                text = if (uiState.error == "Sin conexión a internet") {
+                                                    "No se pudo establecer conexión con el servidor"
+                                                } else {
+                                                    "Ocurrió un error. Por favor intenta nuevamente"
+                                                },
                                                 style = MaterialTheme.typography.bodyMedium,
                                                 color = cardTextColor.copy(alpha = 0.7f),
-                                                textAlign = TextAlign.Center
-                                            )
-                                            Text(
-                                                text = "Verifica tu conexión e intenta nuevamente",
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = cardTextColor.copy(alpha = 0.6f),
                                                 textAlign = TextAlign.Center
                                             )
                                         }

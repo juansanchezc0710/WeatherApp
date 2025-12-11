@@ -5,17 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.example.weatherapp.ui.screens.search.SearchScreen
 import com.example.weatherapp.ui.screens.splash.SplashScreen
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 
@@ -38,23 +35,10 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     } else {
-                        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                            Greeting(
-                                name = "Android",
-                                modifier = Modifier.padding(innerPadding)
-                            )
-                        }
+                        SearchScreen()
                     }
                 }
             }
         }
     }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
 }

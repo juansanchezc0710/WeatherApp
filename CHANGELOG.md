@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### [Task #3] Crear pantalla principal de búsqueda
+- Pantalla de búsqueda con toolbar y campo de búsqueda
+- Icono animado del clima en toolbar
+- Estado vacío con card y mensaje descriptivo
+- Soporte modo claro/oscuro
+- Previews para Android Studio
+
 ### [Task #2] Implementar Splash Screen
 - Splash Screen con iconos animados (sol, nubes, tormenta)
 - Animaciones fade in/out

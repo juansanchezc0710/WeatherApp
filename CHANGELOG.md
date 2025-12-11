@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+### [Task #18] Crear pantalla de detalles del clima
+- WeatherDetailScreen creada con UI completa y moderna
+- Header con temperatura grande, condición e icono del clima desde la API
+- Sección de detalles del clima (humedad, viento, presión, sensación térmica)
+- Pronóstico de 3 días con iconos y temperaturas máximas/mínimas
+- Diseño responsive con cards Material Design 3
+- Soporte modo claro/oscuro con gradientes consistentes
+- Botón de retroceso para navegación
+- Formato de fechas en español
+- Dependencia Coil agregada para cargar imágenes desde URLs
+- Modelo de dominio CurrentWeather actualizado para incluir presión
+- Mapper actualizado para mapear presión desde el modelo de datos
+- Previews para Android Studio
+
 ### [Task #9] Integrar Koin con ViewModels
 - ViewModelModule creado para inyección de ViewModels
 - SearchViewModel actualizado para recibir dependencias por inyección

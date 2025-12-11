@@ -46,7 +46,8 @@ object WeatherMapper {
             conditionIcon = this.condition.icon,
             feelsLike = this.feelsLikeC,
             humidity = this.humidity,
-            windSpeed = this.windKph
+            windSpeed = this.windKph,
+            pressure = this.pressureMb
         )
     }
     

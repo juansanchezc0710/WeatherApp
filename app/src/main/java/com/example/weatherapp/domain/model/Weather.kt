@@ -22,6 +22,7 @@ data class Weather(
  * @property feelsLike Temperature that it feels like in Celsius
  * @property humidity Humidity percentage
  * @property windSpeed Wind speed in km/h
+ * @property pressure Pressure in millibars
  */
 data class CurrentWeather(
     val temperature: Double,
@@ -29,7 +30,8 @@ data class CurrentWeather(
     val conditionIcon: String,
     val feelsLike: Double,
     val humidity: Int,
-    val windSpeed: Double
+    val windSpeed: Double,
+    val pressure: Double
 )
 
 /**

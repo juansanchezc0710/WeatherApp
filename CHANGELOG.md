@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+### [Task #6] Crear servicio de la API del clima
+- Interfaz WeatherApiService con Retrofit implementada
+- Endpoint para buscar ubicaciones (search.json)
+- Endpoint para obtener pronóstico del clima (forecast.json)
+- Configuración de Retrofit con base URL de WeatherAPI
+
+### [Task #5] Agregar Retrofit para llamadas a la API
+- Dependencias Retrofit y OkHttp agregadas en build.gradle
+- Módulo de red (NetworkModule) configurado
+- Interceptor de logging para debugging
+- Timeouts configurados (30 segundos)
+- Conversor Gson para serialización JSON
+
 ### [Task #4] Crear modelos de datos de la API
 - Modelos de datos para la capa Data (Location, WeatherResponse)
 - Modelos de dominio para la capa Domain (Location, Weather)

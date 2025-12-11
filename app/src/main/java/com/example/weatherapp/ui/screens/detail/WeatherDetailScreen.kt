@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -103,22 +104,71 @@ private fun getCardIconColor(): Color {
 
 /**
  * Weather detail screen showing current weather and forecast.
- *
- * @param weather Weather data to display
+ * 
+ * @param locationName Name of the location to display weather for
  * @param onBackClick Callback when back button is clicked
+ * 
+ * TODO: This screen will be updated to use WeatherDetailsViewModel when Issue #17 is implemented.
+ * For now, it displays mock data.
  */
 @Composable
 fun WeatherDetailScreen(
-    weather: Weather,
+    locationName: String,
     onBackClick: () -> Unit
 ) {
+    // TODO: Replace with ViewModel when Issue #17 is implemented
+    // For now, using mock data to enable navigation
+    val mockWeather = remember {
+        Weather(
+            locationName = locationName,
+            current = CurrentWeather(
+                temperature = 18.0,
+                condition = "Parcialmente nublado",
+                conditionIcon = "//cdn.weatherapi.com/weather/64x64/day/116.png",
+                feelsLike = 17.0,
+                humidity = 65,
+                windSpeed = 12.5,
+                pressure = 1013.0
+            ),
+            forecast = listOf(
+                ForecastDay(
+                    date = "2024-01-15",
+                    maxTemp = 20.0,
+                    minTemp = 12.0,
+                    avgTemp = 16.0,
+                    condition = "Parcialmente nublado",
+                    conditionIcon = "//cdn.weatherapi.com/weather/64x64/day/116.png",
+                    avgHumidity = 65
+                ),
+                ForecastDay(
+                    date = "2024-01-16",
+                    maxTemp = 22.0,
+                    minTemp = 14.0,
+                    avgTemp = 18.0,
+                    condition = "Soleado",
+                    conditionIcon = "//cdn.weatherapi.com/weather/64x64/day/113.png",
+                    avgHumidity = 60
+                ),
+                ForecastDay(
+                    date = "2024-01-17",
+                    maxTemp = 19.0,
+                    minTemp = 11.0,
+                    avgTemp = 15.0,
+                    condition = "Nublado",
+                    conditionIcon = "//cdn.weatherapi.com/weather/64x64/day/119.png",
+                    avgHumidity = 75
+                )
+            )
+        )
+    }
+    
     val gradientColors = getGradientColors()
     val textColor = getTextColor()
     val cardColor = getCardColor()
     val cardTextColor = getCardTextColor()
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
-    val forecastDays = weather.forecast.take(3)
+    val forecastDays = mockWeather.forecast.take(3)
 
     Box(
         modifier = Modifier
@@ -164,8 +214,8 @@ fun WeatherDetailScreen(
                             .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        WeatherLocationHeader(weather.locationName, textColor)
-                        CurrentWeatherInfoCard(weather.current, textColor, cardColor, cardTextColor)
+                        WeatherLocationHeader(mockWeather.locationName, textColor)
+                        CurrentWeatherInfoCard(mockWeather.current, textColor, cardColor, cardTextColor)
                     }
                     Column(
                         modifier = Modifier
@@ -194,11 +244,11 @@ fun WeatherDetailScreen(
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     item {
-                        WeatherLocationHeader(weather.locationName, textColor)
+                        WeatherLocationHeader(mockWeather.locationName, textColor)
                     }
 
                     item {
-                        CurrentWeatherInfoCard(weather.current, textColor, cardColor, cardTextColor)
+                        CurrentWeatherInfoCard(mockWeather.current, textColor, cardColor, cardTextColor)
                     }
 
                     item {
@@ -537,51 +587,9 @@ private fun formatForecastDate(dateString: String): String {
 )
 @Composable
 private fun WeatherDetailsLightPreview() {
-    val mockWeatherData = Weather(
-        locationName = "Bogotá",
-        current = CurrentWeather(
-            temperature = 18.0,
-            condition = "Parcialmente nublado",
-            conditionIcon = "//cdn.weatherapi.com/weather/64x64/day/116.png",
-            feelsLike = 17.0,
-            humidity = 65,
-            windSpeed = 12.5,
-            pressure = 1013.0
-        ),
-        forecast = listOf(
-            ForecastDay(
-                date = "2024-01-15",
-                maxTemp = 20.0,
-                minTemp = 12.0,
-                avgTemp = 16.0,
-                condition = "Parcialmente nublado",
-                conditionIcon = "//cdn.weatherapi.com/weather/64x64/day/116.png",
-                avgHumidity = 65
-            ),
-            ForecastDay(
-                date = "2024-01-16",
-                maxTemp = 22.0,
-                minTemp = 14.0,
-                avgTemp = 18.0,
-                condition = "Soleado",
-                conditionIcon = "//cdn.weatherapi.com/weather/64x64/day/113.png",
-                avgHumidity = 60
-            ),
-            ForecastDay(
-                date = "2024-01-17",
-                maxTemp = 19.0,
-                minTemp = 11.0,
-                avgTemp = 15.0,
-                condition = "Nublado",
-                conditionIcon = "//cdn.weatherapi.com/weather/64x64/day/119.png",
-                avgHumidity = 75
-            )
-        )
-    )
-
     WeatherAppTheme(darkTheme = false) {
         WeatherDetailScreen(
-            weather = mockWeatherData,
+            locationName = "Bogotá",
             onBackClick = {}
         )
     }
@@ -596,51 +604,9 @@ private fun WeatherDetailsLightPreview() {
 )
 @Composable
 private fun WeatherDetailsDarkPreview() {
-    val mockWeatherData = Weather(
-        locationName = "Bogotá",
-        current = CurrentWeather(
-            temperature = 18.0,
-            condition = "Parcialmente nublado",
-            conditionIcon = "//cdn.weatherapi.com/weather/64x64/day/116.png",
-            feelsLike = 17.0,
-            humidity = 65,
-            windSpeed = 12.5,
-            pressure = 1013.0
-        ),
-        forecast = listOf(
-            ForecastDay(
-                date = "2024-01-15",
-                maxTemp = 20.0,
-                minTemp = 12.0,
-                avgTemp = 16.0,
-                condition = "Parcialmente nublado",
-                conditionIcon = "//cdn.weatherapi.com/weather/64x64/day/116.png",
-                avgHumidity = 65
-            ),
-            ForecastDay(
-                date = "2024-01-16",
-                maxTemp = 22.0,
-                minTemp = 14.0,
-                avgTemp = 18.0,
-                condition = "Soleado",
-                conditionIcon = "//cdn.weatherapi.com/weather/64x64/day/113.png",
-                avgHumidity = 60
-            ),
-            ForecastDay(
-                date = "2024-01-17",
-                maxTemp = 19.0,
-                minTemp = 11.0,
-                avgTemp = 15.0,
-                condition = "Nublado",
-                conditionIcon = "//cdn.weatherapi.com/weather/64x64/day/119.png",
-                avgHumidity = 75
-            )
-        )
-    )
-
     WeatherAppTheme(darkTheme = true) {
         WeatherDetailScreen(
-            weather = mockWeatherData,
+            locationName = "Bogotá",
             onBackClick = {}
         )
     }

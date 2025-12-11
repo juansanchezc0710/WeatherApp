@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### [Task #16] Agregar Navigation Compose
+- Dependencia Navigation Compose agregada (version 2.8.0)
+- NavGraph creado con rutas para Splash, Search y Details
+- MainActivity actualizado para usar NavController y NavGraph
+- SplashScreen actualizado con callback onNavigateToSearch
+- SearchScreen actualizado con callback onNavigateToDetails
+- WeatherDetailScreen actualizado con callback onBackClick
+- Navegación configurada entre todas las pantallas
+
 ### [Task #18] Crear pantalla de detalles del clima
 - WeatherDetailScreen creada con UI completa y moderna
 - Header con temperatura grande, condición e icono del clima desde la API
@@ -75,6 +84,13 @@
 - Estado vacío con card y mensaje descriptivo
 - Soporte modo claro/oscuro
 - Previews para Android Studio
+- Refactor 
+  - SearchViewModel refactorizado (SearchUiState a data class) 
+  - BackHandler con diálogo de confirmación
+  - Pull-to-refresh
+  - LocationSearchResultCard como componente
+  - Manejo mejorado de errores 
+  - Previews en claro/oscuro
 
 ### [Task #2] Implementar Splash Screen
 - Splash Screen con iconos animados (sol, nubes, tormenta)

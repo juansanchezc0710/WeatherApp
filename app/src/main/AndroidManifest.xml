@@ -4,7 +4,10 @@
 
     <uses-sdk tools:overrideLibrary="androidx.navigationevent,androidx.navigationevent.compose,androidx.activity.ktx,androidx.lifecycle.livedata.core" />
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    
     <application
+        android:name=".WeatherApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"

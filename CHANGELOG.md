@@ -2,25 +2,6 @@
 
 ## [Unreleased]
 
-### [Task #10] Crear funciones para mapear datos a modelos del dominio
-- Funciones de extensión para convertir modelos de data a domain
-- Mapper para Location (data → domain)
-- Mapper para WeatherResponse (data → Weather domain)
-- Mapper para CurrentWeather y ForecastDay
-- Separación clara entre capas Data y Domain
-
-### [Task #7] Agregar ViewModel para la búsqueda
-- SearchViewModel creado con StateFlow para reactividad
-- Estados de UI: Empty, Loading, LocationsLoaded, Error
-- Función searchLocations() con debounce de 500ms
-- Manejo de errores y estados de carga
-- Integración con WeatherApiService para búsqueda de ubicaciones
-- SearchScreen conectada con ViewModel usando viewModel() de Compose
-- UI actualizada para mostrar estados: Empty, Loading, LocationsLoaded y Error
-- Lista de ubicaciones mostrada en cards cuando se encuentran resultados
-- Búsqueda automática con debounce al escribir en el campo de búsqueda
-- Permiso INTERNET agregado al AndroidManifest para llamadas HTTP
-
 ### [Task #6] Crear servicio de la API del clima
 - Interfaz WeatherApiService con Retrofit implementada
 - Endpoint para buscar ubicaciones (search.json)

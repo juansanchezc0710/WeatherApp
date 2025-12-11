@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### [Task #15] Crear casos de uso
+- SearchLocationsUseCase creado para encapsular lógica de búsqueda de ubicaciones
+- GetWeatherForecastUseCase creado para encapsular lógica de obtención de pronóstico
+- Operador invoke implementado en ambos use cases para uso como funciones
+- Validación de queries vacíos en SearchLocationsUseCase
+- UseCaseModule creado para inyección de dependencias con Koin
+- Use cases registrados como factory en Koin
+- Integración de useCaseModule en appModule
+
 ### [Task #14] Configurar Koin para el repositorio
 - RepositoryModule creado para inyección de dependencias del repositorio
 - WeatherRepositoryImpl registrado como singleton en Koin

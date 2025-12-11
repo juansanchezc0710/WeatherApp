@@ -69,6 +69,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.weatherapp.R
 import com.example.weatherapp.data.model.Location
+import com.example.weatherapp.ui.theme.GradientColorsDark
+import com.example.weatherapp.ui.theme.GradientColorsLight
+import com.example.weatherapp.ui.theme.IconBlue
+import com.example.weatherapp.ui.theme.IconBlueLight
+import com.example.weatherapp.ui.theme.IconOrange
+import com.example.weatherapp.ui.theme.IconOrangeDark
+import com.example.weatherapp.ui.theme.IconOrangeLight
+import com.example.weatherapp.ui.theme.getCardColor
+import com.example.weatherapp.ui.theme.getCardIconColor
+import com.example.weatherapp.ui.theme.getCardTextColor
+import com.example.weatherapp.ui.theme.getDialogColor
+import com.example.weatherapp.ui.theme.getSearchFieldBackgroundColor
+import com.example.weatherapp.ui.theme.getSearchFieldIconColor
+import com.example.weatherapp.ui.theme.getSearchFieldTextColor
+import com.example.weatherapp.ui.theme.getTextColor
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import com.example.weatherapp.ui.viewmodel.SearchViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -80,94 +95,12 @@ private enum class WeatherIconType(val iconResId: Int) {
     THUNDERSTORM(R.drawable.ic_thunderstorm)
 }
 
-private val GRADIENT_COLORS_LIGHT = listOf(
-    Color(0xFF3B82F6),
-    Color(0xFF1E40AF)
-)
-
-private val GRADIENT_COLORS_DARK = listOf(
-    Color(0xFF1E3A8A),
-    Color(0xFF0F172A)
-)
-
 @Composable
 private fun getGradientColors(): List<Color> {
     return if (isSystemInDarkTheme()) {
-        GRADIENT_COLORS_DARK
+        GradientColorsDark
     } else {
-        GRADIENT_COLORS_LIGHT
-    }
-}
-
-@Composable
-private fun getTextColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFFE0E0E0)
-    } else {
-        Color.White
-    }
-}
-
-@Composable
-private fun getCardColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFF1E3A8A).copy(alpha = 0.6f)
-    } else {
-        Color.White.copy(alpha = 0.9f)
-    }
-}
-
-@Composable
-private fun getDialogColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFF1E3A8A)
-    } else {
-        Color.White
-    }
-}
-
-@Composable
-private fun getCardTextColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFFE0E0E0)
-    } else {
-        Color(0xFF212121)
-    }
-}
-
-@Composable
-private fun getCardIconColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFFE0E0E0).copy(alpha = 0.7f)
-    } else {
-        Color(0xFF757575)
-    }
-}
-
-@Composable
-private fun getSearchFieldBackgroundColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFF1E3A8A).copy(alpha = 0.8f)
-    } else {
-        Color.White
-    }
-}
-
-@Composable
-private fun getSearchFieldTextColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFFFFFFFF)
-    } else {
-        Color(0xFF212121)
-    }
-}
-
-@Composable
-private fun getSearchFieldIconColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFFFFFFFF).copy(alpha = 0.9f)
-    } else {
-        Color(0xFF757575)
+        GradientColorsLight
     }
 }
 
@@ -176,13 +109,13 @@ fun SearchScreen(
     onNavigateToDetails: (String) -> Unit,
     viewModel: SearchViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val gradientColors = getGradientColors()
-    val textColor = getTextColor()
-    val cardColor = getCardColor()
-    val cardTextColor = getCardTextColor()
-    val cardIconColor = getCardIconColor()
-    val context = LocalContext.current
+            val uiState by viewModel.uiState.collectAsState()
+            val gradientColors = getGradientColors()
+            val textColor = getTextColor()
+            val cardColor = getCardColor()
+            val cardTextColor = getCardTextColor()
+            val cardIconColor = getCardIconColor()
+            val context = LocalContext.current
     var showExitDialog by remember { mutableStateOf(false) }
     
     var pullOffset by remember { mutableFloatStateOf(0f) }
@@ -385,8 +318,8 @@ fun SearchScreen(
                                                         .background(
                                                             brush = Brush.radialGradient(
                                                                 colors = listOf(
-                                                                    Color(0xFFFF9800).copy(alpha = 0.2f),
-                                                                    Color(0xFFFF5722).copy(alpha = 0.1f)
+                                                        IconOrange.copy(alpha = 0.2f),
+                                                        IconOrangeDark.copy(alpha = 0.1f)
                                                                 )
                                                             ),
                                                             shape = RoundedCornerShape(40.dp)
@@ -396,11 +329,11 @@ fun SearchScreen(
                                                     Icon(
                                                         painter = painterResource(id = R.drawable.ic_no_internet_connection),
                                                         contentDescription = "Sin conexión",
-                                                        tint = if (isSystemInDarkTheme()) {
-                                                            Color(0xFFFFB74D)
-                                                        } else {
-                                                            Color(0xFFFF9800)
-                                                        },
+                                                            tint = if (isSystemInDarkTheme()) {
+                                                                IconOrangeLight
+                                                            } else {
+                                                                IconOrange
+                                                            },
                                                         modifier = Modifier.size(48.dp)
                                                     )
                                                 }
@@ -444,8 +377,8 @@ fun SearchScreen(
                                                 .background(
                                                     brush = Brush.radialGradient(
                                                         colors = listOf(
-                                                            Color(0xFFFF9800).copy(alpha = 0.2f),
-                                                            Color(0xFFFF5722).copy(alpha = 0.1f)
+                                                        IconOrange.copy(alpha = 0.2f),
+                                                        IconOrangeDark.copy(alpha = 0.1f)
                                                         )
                                                     ),
                                                     shape = RoundedCornerShape(32.dp)
@@ -455,11 +388,11 @@ fun SearchScreen(
                                             Icon(
                                                 imageVector = Icons.Default.Search,
                                                 contentDescription = "Sin resultados",
-                                                tint = if (isSystemInDarkTheme()) {
-                                                    Color(0xFFFFB74D)
-                                                } else {
-                                                    Color(0xFFFF9800)
-                                                },
+                                                            tint = if (isSystemInDarkTheme()) {
+                                                                IconOrangeLight
+                                                            } else {
+                                                                IconOrange
+                                                            },
                                                 modifier = Modifier.size(32.dp)
                                             )
                                         }
@@ -507,8 +440,8 @@ fun SearchScreen(
                                                     .background(
                                                         brush = Brush.radialGradient(
                                                             colors = listOf(
-                                                                Color(0xFF3B82F6).copy(alpha = 0.2f),
-                                                                Color(0xFF1E40AF).copy(alpha = 0.1f)
+                                                GradientColorsLight.first().copy(alpha = 0.2f),
+                                                GradientColorsLight.last().copy(alpha = 0.1f)
                                                             )
                                                         ),
                                                         shape = RoundedCornerShape(40.dp)
@@ -518,11 +451,11 @@ fun SearchScreen(
                                                 Icon(
                                                     imageVector = Icons.Default.Place,
                                                     contentDescription = "Ubicación",
-                                                    tint = if (isSystemInDarkTheme()) {
-                                                        Color(0xFF64B5F6)
-                                                    } else {
-                                                        Color(0xFF2196F3)
-                                                    },
+                                                            tint = if (isSystemInDarkTheme()) {
+                                                                IconBlueLight
+                                                            } else {
+                                                                IconBlue
+                                                            },
                                                     modifier = Modifier.size(48.dp)
                                                 )
                                             }
@@ -660,9 +593,9 @@ private fun ExitApplicationConfirmationDialog(
                 Text(
                     text = "Salir",
                     color = if (isSystemInDarkTheme()) {
-                        Color(0xFFFF6B4A)
+                        IconOrangeLight
                     } else {
-                        Color(0xFFFF5722)
+                        IconOrangeDark
                     },
                     fontWeight = FontWeight.Bold
                 )
@@ -751,11 +684,11 @@ fun LocationSearchResultCard(
             Icon(
                 imageVector = Icons.Default.Place,
                 contentDescription = "Ubicación",
-                tint = if (isSystemInDarkTheme()) {
-                    Color(0xFF64B5F6)
-                } else {
-                    Color(0xFF2196F3)
-                },
+                                                            tint = if (isSystemInDarkTheme()) {
+                                                                IconBlueLight
+                                                            } else {
+                                                                IconBlue
+                                                            },
                 modifier = Modifier
                     .size(35.dp)
                     .padding(end = 12.dp)
@@ -865,31 +798,31 @@ private fun SearchScreenEmptyContent() {
                 OutlinedTextField(
                     value = "",
                     onValueChange = {},
-                    placeholder = {
-                        Text(
-                            text = "Buscar ciudad...",
-                            color = getSearchFieldIconColor().copy(alpha = 0.6f)
-                        )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Buscar",
-                            tint = getSearchFieldIconColor(),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    trailingIcon = null,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = getSearchFieldTextColor(),
-                        unfocusedTextColor = getSearchFieldTextColor(),
-                        focusedContainerColor = getSearchFieldBackgroundColor(),
-                        unfocusedContainerColor = getSearchFieldBackgroundColor(),
-                        focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent,
-                        focusedLeadingIconColor = getSearchFieldIconColor(),
-                        unfocusedLeadingIconColor = getSearchFieldIconColor()
-                    ),
+                            placeholder = {
+                                Text(
+                                    text = "Buscar ciudad...",
+                                    color = getSearchFieldIconColor().copy(alpha = 0.6f)
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = "Buscar",
+                                    tint = getSearchFieldIconColor(),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            },
+                            trailingIcon = null,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = getSearchFieldTextColor(),
+                                unfocusedTextColor = getSearchFieldTextColor(),
+                                focusedContainerColor = getSearchFieldBackgroundColor(),
+                                unfocusedContainerColor = getSearchFieldBackgroundColor(),
+                                focusedBorderColor = Color.Transparent,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedLeadingIconColor = getSearchFieldIconColor(),
+                                unfocusedLeadingIconColor = getSearchFieldIconColor()
+                            ),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
@@ -921,8 +854,8 @@ private fun SearchScreenEmptyContent() {
                                     .background(
                                         brush = Brush.radialGradient(
                                             colors = listOf(
-                                                Color(0xFF3B82F6).copy(alpha = 0.2f),
-                                                Color(0xFF1E40AF).copy(alpha = 0.1f)
+                                                GradientColorsLight.first().copy(alpha = 0.2f),
+                                                GradientColorsLight.last().copy(alpha = 0.1f)
                                             )
                                         ),
                                         shape = RoundedCornerShape(40.dp)
@@ -932,11 +865,11 @@ private fun SearchScreenEmptyContent() {
                                 Icon(
                                     imageVector = Icons.Default.Place,
                                     contentDescription = "Ubicación",
-                                    tint = if (isSystemInDarkTheme()) {
-                                        Color(0xFF64B5F6)
-                                    } else {
-                                        Color(0xFF2196F3)
-                                    },
+                                                            tint = if (isSystemInDarkTheme()) {
+                                                                IconBlueLight
+                                                            } else {
+                                                                IconBlue
+                                                            },
                                     modifier = Modifier.size(48.dp)
                                 )
                             }

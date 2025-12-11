@@ -61,53 +61,28 @@ import com.example.weatherapp.R
 import com.example.weatherapp.domain.model.CurrentWeather
 import com.example.weatherapp.domain.model.ForecastDay
 import com.example.weatherapp.domain.model.Weather
+import com.example.weatherapp.ui.theme.GradientColorsDark
+import com.example.weatherapp.ui.theme.GradientColorsLight
+import com.example.weatherapp.ui.theme.IconBlue
+import com.example.weatherapp.ui.theme.IconBlueLight
+import com.example.weatherapp.ui.theme.IconOrange
+import com.example.weatherapp.ui.theme.IconOrangeDark
+import com.example.weatherapp.ui.theme.IconOrangeLight
+import com.example.weatherapp.ui.theme.ThermometerDark
+import com.example.weatherapp.ui.theme.ThermometerLight
+import com.example.weatherapp.ui.theme.getCardColor
+import com.example.weatherapp.ui.theme.getCardTextColor
+import com.example.weatherapp.ui.theme.getTextColor
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import com.example.weatherapp.ui.viewmodel.WeatherDetailsViewModel
 import org.koin.androidx.compose.koinViewModel
 
-private val GRADIENT_COLORS_LIGHT = listOf(
-    Color(0xFF3B82F6),
-    Color(0xFF1E40AF)
-)
-
-private val GRADIENT_COLORS_DARK = listOf(
-    Color(0xFF1E3A8A),
-    Color(0xFF0F172A)
-)
-
 @Composable
 private fun getGradientColors(): List<Color> {
     return if (isSystemInDarkTheme()) {
-        GRADIENT_COLORS_DARK
+        GradientColorsDark
     } else {
-        GRADIENT_COLORS_LIGHT
-    }
-}
-
-@Composable
-private fun getTextColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFFE0E0E0)
-    } else {
-        Color.White
-    }
-}
-
-@Composable
-private fun getCardColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFF1E3A8A).copy(alpha = 0.6f)
-    } else {
-        Color.White.copy(alpha = 0.9f)
-    }
-}
-
-@Composable
-private fun getCardTextColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFFE0E0E0)
-    } else {
-        Color(0xFF212121)
+        GradientColorsLight
     }
 }
 
@@ -269,8 +244,8 @@ fun WeatherDetailScreen(
                                                     .background(
                                                         brush = Brush.radialGradient(
                                                             colors = listOf(
-                                                                Color(0xFFFF9800).copy(alpha = 0.2f),
-                                                                Color(0xFFFF5722).copy(alpha = 0.1f)
+                                                                IconOrange.copy(alpha = 0.2f),
+                                                                IconOrangeDark.copy(alpha = 0.1f)
                                                             )
                                                         ),
                                                         shape = RoundedCornerShape(40.dp)
@@ -281,9 +256,9 @@ fun WeatherDetailScreen(
                                                     painter = painterResource(id = R.drawable.ic_no_internet_connection),
                                                     contentDescription = "Sin conexión",
                                                     tint = if (isSystemInDarkTheme()) {
-                                                        Color(0xFFFFB74D)
+                                                        IconOrangeLight
                                                     } else {
-                                                        Color(0xFFFF9800)
+                                                        IconOrange
                                                     },
                                                     modifier = Modifier.size(48.dp)
                                                 )
@@ -498,29 +473,29 @@ private fun WeatherLocationHeader(
 private fun CurrentWeatherInfoCard(
     current: CurrentWeather,
     textColor: Color,
-    cardColor: Color = getCardColor(),
-    cardTextColor: Color = getCardTextColor()
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = getCardColor()
-        )
+        cardColor: Color = getCardColor(),
+        cardTextColor: Color = getCardTextColor()
     ) {
-        Column(
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = cardColor
+            )
         ) {
-            Text(
-                text = "Hoy",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = getCardTextColor(),
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Hoy",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = cardTextColor,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
@@ -536,13 +511,13 @@ private fun CurrentWeatherInfoCard(
                 text = "${current.temperature.toInt()}°C",
                 style = MaterialTheme.typography.displayMedium,
                 fontWeight = FontWeight.Bold,
-                color = getCardTextColor()
+                color = cardTextColor
             )
 
             Text(
                 text = current.condition,
                 style = MaterialTheme.typography.titleMedium,
-                color = getCardTextColor().copy(alpha = 0.8f),
+                color = cardTextColor.copy(alpha = 0.8f),
                 fontWeight = FontWeight.Normal,
                 modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
             )
@@ -623,17 +598,17 @@ private fun getWeatherDetailIconColor(iconType: WeatherDetailIconType): Color {
     return when (iconType) {
         WeatherDetailIconType.THERMOMETER -> {
             if (isSystemInDarkTheme()) {
-                Color(0xFFFF6B4A)
+                ThermometerDark
             } else {
-                Color(0xFFFF5722)
+                ThermometerLight
             }
         }
 
         WeatherDetailIconType.WATER_DROP -> {
             if (isSystemInDarkTheme()) {
-                Color(0xFF64B5F6)
+                IconBlueLight
             } else {
-                Color(0xFF2196F3)
+                IconBlue
             }
         }
 

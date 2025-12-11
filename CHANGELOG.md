@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+### [Task #25] Crear icono de la app
+- Icono adaptativo creado con gradiente azul de fondo
+- Fondo diferenciado para modo claro (#3B82F6 a #1E40AF) y modo oscuro (#1E3A8A a #0F172A)
+- Configuración en mipmap-anydpi-v26 para iconos adaptativos
+- Soporte para icono cuadrado y redondo
+
+### [Task #20] Ajustar tema y colores
+- Esquema de colores azules personalizado para la app del clima
+- DarkColorScheme con fondos oscuros (DarkBlueOuter, DarkBlueEdge) y textos blancos
+- LightColorScheme con fondos claros (LightBlueOuter, LightBlueEdge) y textos negros
+- Colores primarios azules (PrimaryBlue, LightBlue) configurados
+- Dynamic color deshabilitado para mantener colores personalizados consistentes
+
 ### [Task #15] Crear casos de uso
 - SearchLocationsUseCase creado para encapsular lógica de búsqueda de ubicaciones
 - GetWeatherForecastUseCase creado para encapsular lógica de obtención de pronóstico

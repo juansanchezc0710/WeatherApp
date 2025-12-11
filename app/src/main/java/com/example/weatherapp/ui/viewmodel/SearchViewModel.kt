@@ -2,7 +2,6 @@ package com.example.weatherapp.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.weatherapp.data.api.NetworkModule
 import com.example.weatherapp.data.api.WeatherApiService
 import com.example.weatherapp.data.model.Location
 import kotlinx.coroutines.Job
@@ -26,10 +25,11 @@ sealed class SearchUiState {
 /**
  * ViewModel for the search screen.
  * Manages the state and business logic for location search.
+ * Dependencies are injected via Koin.
  */
 class SearchViewModel(
-    private val apiService: WeatherApiService = NetworkModule.weatherApiService,
-    private val apiKey: String = NetworkModule.API_KEY
+    private val apiService: WeatherApiService,
+    private val apiKey: String
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow<SearchUiState>(SearchUiState.Empty)

@@ -37,6 +37,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.weatherapp.R
+import com.example.weatherapp.ui.theme.GradientColorsDark
+import com.example.weatherapp.ui.theme.GradientColorsLight
+import com.example.weatherapp.ui.theme.getTextColor
 import kotlinx.coroutines.delay
 
 private enum class SplashWeatherIconType(val iconResId: Int) {
@@ -52,40 +55,12 @@ private const val FADE_TRANSITION_MS = 200
 private const val ICON_CHANGE_DELAY_MS = 200L
 private const val SUN_ROTATION_DURATION_MS = 8000
 
-private val GRADIENT_COLORS_LIGHT = listOf(
-    Color(0xFF3B82F6),
-    Color(0xFF1E40AF)
-)
-
-private val GRADIENT_COLORS_DARK = listOf(
-    Color(0xFF1E3A8A),
-    Color(0xFF0F172A)
-)
-
 @Composable
 private fun getGradientColors(): List<Color> {
     return if (isSystemInDarkTheme()) {
-        GRADIENT_COLORS_DARK
+        GradientColorsDark
     } else {
-        GRADIENT_COLORS_LIGHT
-    }
-}
-
-@Composable
-private fun getIconColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFFE0E0E0)
-    } else {
-        Color.White
-    }
-}
-
-@Composable
-private fun getTextColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFFE0E0E0)
-    } else {
-        Color.White
+        GradientColorsLight
     }
 }
 
@@ -118,7 +93,7 @@ private fun Splash(alpha: Float) {
     var isVisible by remember { mutableStateOf(true) }
     val weatherIcons = SplashWeatherIconType.entries
     val gradientColors = getGradientColors()
-    val iconColor = getIconColor()
+    val iconColor = getTextColor()
     val textColor = getTextColor()
 
     val sunRotation by rememberInfiniteTransition(label = "sunRotation").animateFloat(

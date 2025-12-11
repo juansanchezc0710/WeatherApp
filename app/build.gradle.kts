@@ -57,6 +57,8 @@ dependencies {
     implementation(libs.retrofit.gson)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
     
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

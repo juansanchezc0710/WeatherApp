@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+### [Task #9] Integrar Koin con ViewModels
+- ViewModelModule creado para inyección de ViewModels
+- SearchViewModel actualizado para recibir dependencias por inyección
+- SearchScreen actualizado para usar `koinViewModel()` en lugar de `viewModel()`
+- Dependencias inyectadas: WeatherApiService y API Key
+- Separación de responsabilidades mejorada
+
+### [Task #8] Configurar Koin para inyección de dependencias
+- Dependencias Koin agregadas (koin-android, koin-androidx-compose)
+- Clase `WeatherApp` creada como Application para inicializar Koin
+- NetworkModule creado para inyección de dependencias de red
+- WeatherApiService y API Key configurados como singletons
+- AndroidManifest actualizado para registrar la clase Application
+- Módulo principal `appModule` que combina todos los módulos
+
 ### [Task #10] Crear funciones para mapear datos a modelos del dominio
 - Funciones de extensión para convertir modelos de data a domain
 - Mapper para Location (data → domain)

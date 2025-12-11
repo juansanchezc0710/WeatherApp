@@ -41,7 +41,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.androidx.compose.koinViewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -137,7 +137,7 @@ private fun getSearchFieldIconColor(): Color {
 }
 
 @Composable
-fun SearchScreen(viewModel: SearchViewModel = viewModel()) {
+fun SearchScreen(viewModel: SearchViewModel = koinViewModel()) {
     var searchQuery by remember { mutableStateOf("") }
     val uiState by viewModel.uiState.collectAsState()
     val gradientColors = getGradientColors()
@@ -211,7 +211,10 @@ fun SearchScreen(viewModel: SearchViewModel = viewModel()) {
                     trailingIcon = {
                         if (searchQuery.isNotBlank()) {
                             IconButton(
-                                onClick = { searchQuery = "" }
+                                onClick = { 
+                                    searchQuery = ""
+                                    viewModel.clearState()
+                                }
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Close,

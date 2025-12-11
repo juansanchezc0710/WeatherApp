@@ -29,6 +29,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Search
@@ -124,7 +125,7 @@ fun SearchScreen(
     BackHandler(enabled = true) {
         if (uiState.searchQuery.isNotBlank()) {
             viewModel.onSearchQueryChanged("")
-        } else {
+    } else {
             showExitDialog = true
         }
     }
@@ -199,56 +200,56 @@ fun SearchScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        OutlinedTextField(
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                OutlinedTextField(
                             value = uiState.searchQuery,
                             onValueChange = viewModel::onSearchQueryChanged,
-                            placeholder = {
-                                Text(
-                                    text = "Buscar ciudad...",
-                                    color = getSearchFieldIconColor().copy(alpha = 0.6f)
-                                )
-                            },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Search,
-                                    contentDescription = "Buscar",
-                                    tint = getSearchFieldIconColor(),
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            },
-                            trailingIcon = {
-                                if (uiState.searchQuery.isNotBlank()) {
-                                    IconButton(
-                                        onClick = { viewModel.onSearchQueryChanged("") }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Close,
-                                            contentDescription = "Limpiar",
-                                            tint = getSearchFieldIconColor(),
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                    }
-                                }
-                            },
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = getSearchFieldTextColor(),
-                                unfocusedTextColor = getSearchFieldTextColor(),
-                                focusedContainerColor = getSearchFieldBackgroundColor(),
-                                unfocusedContainerColor = getSearchFieldBackgroundColor(),
-                                focusedBorderColor = Color.Transparent,
-                                unfocusedBorderColor = Color.Transparent,
-                                focusedLeadingIconColor = getSearchFieldIconColor(),
-                                unfocusedLeadingIconColor = getSearchFieldIconColor(),
-                                focusedTrailingIconColor = getSearchFieldIconColor(),
-                                unfocusedTrailingIconColor = getSearchFieldIconColor()
-                            ),
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true
+                    placeholder = {
+                        Text(
+                            text = "Buscar ciudad...",
+                            color = getSearchFieldIconColor().copy(alpha = 0.6f)
                         )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Buscar",
+                            tint = getSearchFieldIconColor(),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    trailingIcon = {
+                                if (uiState.searchQuery.isNotBlank()) {
+                            IconButton(
+                                        onClick = { viewModel.onSearchQueryChanged("") }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Limpiar",
+                                    tint = getSearchFieldIconColor(),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = getSearchFieldTextColor(),
+                        unfocusedTextColor = getSearchFieldTextColor(),
+                        focusedContainerColor = getSearchFieldBackgroundColor(),
+                        unfocusedContainerColor = getSearchFieldBackgroundColor(),
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedLeadingIconColor = getSearchFieldIconColor(),
+                        unfocusedLeadingIconColor = getSearchFieldIconColor(),
+                        focusedTrailingIconColor = getSearchFieldIconColor(),
+                        unfocusedTrailingIconColor = getSearchFieldIconColor()
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
 
                         when {
                             uiState.isLoading -> {
@@ -318,42 +319,57 @@ fun SearchScreen(
                                                         .background(
                                                             brush = Brush.radialGradient(
                                                                 colors = listOf(
-                                                        IconOrange.copy(alpha = 0.2f),
-                                                        IconOrangeDark.copy(alpha = 0.1f)
+                                                                    IconOrange.copy(alpha = 0.2f),
+                                                                    IconOrangeDark.copy(alpha = 0.1f)
                                                                 )
                                                             ),
                                                             shape = RoundedCornerShape(40.dp)
                                                         ),
                                                     contentAlignment = Alignment.Center
                                                 ) {
-                                                    Icon(
-                                                        painter = painterResource(id = R.drawable.ic_no_internet_connection),
-                                                        contentDescription = "Sin conexión",
+                                                    if (uiState.error == "Sin conexión a internet") {
+                                                        Icon(
+                                                            painter = painterResource(id = R.drawable.ic_no_internet_connection),
+                                                            contentDescription = "Sin conexión",
                                                             tint = if (isSystemInDarkTheme()) {
                                                                 IconOrangeLight
                                                             } else {
                                                                 IconOrange
                                                             },
-                                                        modifier = Modifier.size(48.dp)
-                                                    )
+                                                            modifier = Modifier.size(48.dp)
+                                                        )
+                                                    } else {
+                                                        Icon(
+                                                            imageVector = Icons.Default.Warning,
+                                                            contentDescription = "Error",
+                                                            tint = if (isSystemInDarkTheme()) {
+                                                                IconOrangeLight
+                                                            } else {
+                                                                IconOrange
+                                                            },
+                                                            modifier = Modifier.size(48.dp)
+                                                        )
+                                                    }
                                                 }
                                                 Text(
-                                                    text = "Sin conexión a internet",
+                                                    text = if (uiState.error == "Sin conexión a internet") {
+                                                        "Sin conexión a internet"
+                                                    } else {
+                                                        "Error"
+                                                    },
                                                     style = MaterialTheme.typography.titleLarge,
                                                     fontWeight = FontWeight.Bold,
                                                     color = cardTextColor,
                                                     textAlign = TextAlign.Center
                                                 )
                                                 Text(
-                                                    text = uiState.error ?: "Verifica tu conexión e intenta nuevamente",
+                                                    text = if (uiState.error == "Sin conexión a internet") {
+                                                        "No se pudo establecer conexión con el servidor"
+                                                    } else {
+                                                        "Ocurrió un error. Por favor intenta nuevamente"
+                                                    },
                                                     style = MaterialTheme.typography.bodyMedium,
                                                     color = cardTextColor.copy(alpha = 0.7f),
-                                                    textAlign = TextAlign.Center
-                                                )
-                                                Text(
-                                                    text = "Asegúrate de estar conectado a WiFi o datos móviles",
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    color = cardTextColor.copy(alpha = 0.6f),
                                                     textAlign = TextAlign.Center
                                                 )
                                             }
@@ -414,68 +430,68 @@ fun SearchScreen(
                             }
 
                             uiState.locations.isEmpty() -> {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Card(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(horizontal = 24.dp, vertical = 32.dp),
-                                        shape = RoundedCornerShape(20.dp),
-                                        colors = CardDefaults.cardColors(
-                                            containerColor = cardColor
-                                        )
-                                    ) {
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(32.dp),
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                                        ) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(80.dp)
-                                                    .background(
-                                                        brush = Brush.radialGradient(
-                                                            colors = listOf(
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 32.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = cardColor
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .background(
+                                        brush = Brush.radialGradient(
+                                            colors = listOf(
                                                 GradientColorsLight.first().copy(alpha = 0.2f),
                                                 GradientColorsLight.last().copy(alpha = 0.1f)
-                                                            )
-                                                        ),
-                                                        shape = RoundedCornerShape(40.dp)
-                                                    ),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Place,
-                                                    contentDescription = "Ubicación",
-                                                            tint = if (isSystemInDarkTheme()) {
+                                            )
+                                        ),
+                                        shape = RoundedCornerShape(40.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Place,
+                                    contentDescription = "Ubicación",
+                                    tint = if (isSystemInDarkTheme()) {
                                                                 IconBlueLight
-                                                            } else {
+                                    } else {
                                                                 IconBlue
-                                                            },
-                                                    modifier = Modifier.size(48.dp)
-                                                )
-                                            }
-                                            Text(
-                                                text = "Escribe el nombre de una ciudad para comenzar",
-                                                style = MaterialTheme.typography.titleLarge,
-                                                fontWeight = FontWeight.Bold,
-                                                color = cardTextColor,
-                                                textAlign = TextAlign.Center
-                                            )
-                                            Text(
-                                                text = "Busca cualquier ciudad del mundo para ver su pronóstico del clima",
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = cardTextColor.copy(alpha = 0.7f),
-                                                textAlign = TextAlign.Center
-                                            )
-                                        }
-                                    }
-                                }
+                                    },
+                                    modifier = Modifier.size(48.dp)
+                                )
                             }
+                            Text(
+                                text = "Escribe el nombre de una ciudad para comenzar",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = cardTextColor,
+                                textAlign = TextAlign.Center
+                            )
+                            Text(
+                                text = "Busca cualquier ciudad del mundo para ver su pronóstico del clima",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = cardTextColor.copy(alpha = 0.7f),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+            }
 
                             else -> {
                                 LazyColumn(

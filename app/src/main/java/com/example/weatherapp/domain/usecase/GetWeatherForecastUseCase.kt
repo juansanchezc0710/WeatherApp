@@ -2,6 +2,7 @@ package com.example.weatherapp.domain.usecase
 
 import com.example.weatherapp.domain.model.Weather
 import com.example.weatherapp.domain.repository.WeatherRepository
+import com.example.weatherapp.util.Logger
 
 /**
  * Use case for retrieving weather forecast.
@@ -20,6 +21,7 @@ class GetWeatherForecastUseCase(
      * @return Result containing weather data or an error
      */
     suspend operator fun invoke(locationName: String): Result<Weather> {
+        Logger.d("UseCase: Executing GetWeatherForecastUseCase for location: '$locationName'", "GetWeatherForecastUseCase")
         return repository.getWeatherForecast(locationName)
     }
 }

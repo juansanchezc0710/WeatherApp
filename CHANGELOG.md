@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+### [Task #21] Crear utilidad de logs
+- Logger object creado en `util/Logger.kt`
+- Métodos para diferentes niveles de log: d(), i(), w(), e()
+- Método e() con soporte para excepciones
+- Tag por defecto configurado como "WeatherApp"
+- Truncado automático de tags que excedan 23 caracteres (límite de Android)
+- Implementación simple basada en android.util.Log
+- Logs implementados en ViewModels (SearchViewModel, WeatherDetailsViewModel)
+- Logs implementados en Repository (WeatherRepositoryImpl)
+- Logs implementados en Use Cases (SearchLocationsUseCase, GetWeatherForecastUseCase)
+- Logs implementados en WeatherApp (inicialización de Koin)
+- Logs implementados en MainActivity (ciclo de vida)
+- Logs estratégicos para operaciones críticas, errores y validaciones
+
 ### [Task #25] Crear icono de la app
 - Icono adaptativo creado con gradiente azul de fondo
 - Fondo diferenciado para modo claro (#3B82F6 a #1E40AF) y modo oscuro (#1E3A8A a #0F172A)

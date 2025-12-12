@@ -391,6 +391,8 @@ fun SearchScreen(
                             }
 
                             uiState.locations.isEmpty() && uiState.searchQuery.isNotBlank() -> {
+                                val scrollState = rememberScrollState()
+                                
                                 Box(
                                     modifier = Modifier
                                         .fillMaxSize()
@@ -399,7 +401,10 @@ fun SearchScreen(
                                 ) {
                                     Column(
                                         horizontalAlignment = Alignment.CenterHorizontally,
-                                        modifier = Modifier.padding(32.dp)
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .verticalScroll(scrollState)
+                                            .padding(32.dp)
                                     ) {
                                         Box(
                                             modifier = Modifier
@@ -431,13 +436,15 @@ fun SearchScreen(
                                             style = MaterialTheme.typography.titleMedium,
                                             fontWeight = FontWeight.Bold,
                                             color = textColor,
-                                            modifier = Modifier.padding(top = 16.dp)
+                                            modifier = Modifier.padding(top = 16.dp),
+                                            textAlign = TextAlign.Center
                                         )
                                         Text(
                                             text = "Intenta con otro nombre",
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = textColor.copy(alpha = 0.7f),
-                                            modifier = Modifier.padding(top = 8.dp)
+                                            modifier = Modifier.padding(top = 8.dp),
+                                            textAlign = TextAlign.Center
                                         )
                                     }
                                 }

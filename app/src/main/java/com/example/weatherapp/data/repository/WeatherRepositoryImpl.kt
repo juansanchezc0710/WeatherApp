@@ -19,6 +19,12 @@ class WeatherRepositoryImpl(
     private val apiKey: String
 ) : WeatherRepository {
     
+    /**
+     * Searches for locations based on a query string.
+     *
+     * @param query Search query string
+     * @return Result containing a list of locations or an error
+     */
     override suspend fun searchLocations(query: String): Result<List<Location>> {
         Logger.d("Repository: Searching locations for query: '$query'", "WeatherRepository")
         return try {
@@ -35,6 +41,12 @@ class WeatherRepositoryImpl(
         }
     }
     
+    /**
+     * Retrieves weather forecast for a specific location.
+     *
+     * @param locationName Name of the location
+     * @return Result containing weather data or an error
+     */
     override suspend fun getWeatherForecast(locationName: String): Result<Weather> {
         Logger.d("Repository: Getting weather forecast for: '$locationName'", "WeatherRepository")
         return try {

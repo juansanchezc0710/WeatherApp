@@ -37,6 +37,14 @@ private val LightColorScheme = lightColorScheme(
     onSurface = Color.Black
 )
 
+/**
+ * Main theme composable for WeatherApp.
+ * Applies Material3 theme with custom color schemes.
+ *
+ * @param darkTheme Whether to use dark theme
+ * @param dynamicColor Whether to use dynamic colors (Android 12+)
+ * @param content Composable content to apply theme to
+ */
 @Composable
 fun WeatherAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

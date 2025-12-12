@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
@@ -196,6 +197,36 @@ class SearchViewModelTest {
         fun `performLocationSearch sets network error for SocketTimeoutException`() = runTest {
             val query = "Invalid"
             val error = SocketTimeoutException("Connection timed out")
+
+            coEvery { apiService.searchLocations(apiKey, query) } throws error
+
+            viewModel.onSearchQueryChanged(query)
+            advanceTimeBy(500)
+            advanceUntilIdle()
+
+            assertEquals("Sin conexión a internet", viewModel.uiState.value.error)
+        }
+
+        @Test
+        @DisplayName("should set network error for IOException with SSL handshake")
+        fun `performLocationSearch sets network error for SSLHandshakeException`() = runTest {
+            val query = "Invalid"
+            val error = IOException("SSL handshake aborted")
+
+            coEvery { apiService.searchLocations(apiKey, query) } throws error
+
+            viewModel.onSearchQueryChanged(query)
+            advanceTimeBy(500)
+            advanceUntilIdle()
+
+            assertEquals("Sin conexión a internet", viewModel.uiState.value.error)
+        }
+
+        @Test
+        @DisplayName("should set network error for IOException with connection error")
+        fun `performLocationSearch sets network error for connection IOException`() = runTest {
+            val query = "Invalid"
+            val error = IOException("Failed to connect to host")
 
             coEvery { apiService.searchLocations(apiKey, query) } throws error
 

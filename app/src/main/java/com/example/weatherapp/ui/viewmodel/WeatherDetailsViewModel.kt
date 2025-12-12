@@ -12,20 +12,29 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
-import java.net.ConnectException
-import java.net.SocketException
-import java.net.NoRouteToHostException
 import java.io.IOException
-import java.io.InterruptedIOException
 
+/**
+ * UI State for the weather details screen.
+ *
+ * @property weatherData Current weather data and forecast
+ * @property isLoading Whether data is being loaded
+ * @property error Error message if any
+ */
 data class WeatherDetailsUiState(
     val weatherData: Weather? = null,
     val isLoading: Boolean = false,
     val error: String? = null
 )
 
+/**
+ * ViewModel for the weather details screen.
+ * Manages the state and business logic for weather forecast display.
+ * Dependencies are injected via Koin.
+ *
+ * @property apiService API service for weather data
+ * @property apiKey API key for WeatherAPI authentication
+ */
 class WeatherDetailsViewModel(
     private val apiService: WeatherApiService,
     private val apiKey: String
@@ -36,6 +45,11 @@ class WeatherDetailsViewModel(
 
     private var currentLocationName: String = ""
 
+    /**
+     * Loads weather forecast data for the specified location.
+     *
+     * @param locationName Name of the location to load forecast for
+     */
     fun loadWeatherForecastData(locationName: String) {
         Logger.d("Loading weather forecast for: '$locationName'", "WeatherDetailsViewModel")
         currentLocationName = locationName
@@ -78,7 +92,16 @@ class WeatherDetailsViewModel(
                 )
             } catch (e: Exception) {
                 Logger.e("Error loading weather forecast for '$locationName'", e, "WeatherDetailsViewModel")
-                val errorMessage = getErrorMessage(e)
+                val errorMessage = if (e is IOException) {
+                    val text = (e.message?.lowercase() ?: "") + e.javaClass.simpleName.lowercase()
+                    if (text.contains("host") || text.contains("connect") || text.contains("ssl")) {
+                        "Sin conexión a internet"
+                    } else {
+                        "Error de conexión"
+                    }
+                } else {
+                    e.message ?: "Error al cargar el pronóstico"
+                }
                 _uiState.value = _uiState.value.copy(
                     weatherData = null,
                     isLoading = false,
@@ -88,6 +111,9 @@ class WeatherDetailsViewModel(
         }
     }
 
+    /**
+     * Refreshes the current weather forecast data.
+     */
     fun refreshWeatherForecastData() {
         if (currentLocationName.isNotBlank()) {
             Logger.d("Refreshing weather forecast for: '$currentLocationName'", "WeatherDetailsViewModel")
@@ -97,34 +123,5 @@ class WeatherDetailsViewModel(
         }
     }
     
-    /**
-     * Gets a user-friendly error message based on the exception type.
-     */
-    private fun getErrorMessage(exception: Exception): String {
-        return when (exception) {
-            is UnknownHostException,
-            is SocketTimeoutException,
-            is ConnectException,
-            is SocketException,
-            is NoRouteToHostException,
-            is InterruptedIOException -> {
-                "Sin conexión a internet"
-            }
-            is IOException -> {
-                val message = exception.message?.lowercase() ?: ""
-                if (message.contains("unable to resolve host") || 
-                    message.contains("failed to connect") ||
-                    message.contains("network is unreachable") ||
-                    message.contains("no route to host")) {
-                    "Sin conexión a internet"
-                } else {
-                    "Error de conexión"
-                }
-            }
-            else -> {
-                exception.message ?: "Error al cargar el pronóstico"
-            }
-        }
-    }
 }
 

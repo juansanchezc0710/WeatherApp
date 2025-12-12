@@ -63,6 +63,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -105,6 +107,13 @@ private fun getGradientColors(): List<Color> {
     }
 }
 
+/**
+ * Search screen for finding locations.
+ * Displays search input and results list with pull-to-refresh functionality.
+ *
+ * @param onNavigateToDetails Callback to navigate to weather details screen
+ * @param viewModel ViewModel instance (injected via Koin)
+ */
 @Composable
 fun SearchScreen(
     onNavigateToDetails: (String) -> Unit,
@@ -262,6 +271,8 @@ fun SearchScreen(
                             }
 
                             uiState.error != null -> {
+                                val scrollState = rememberScrollState()
+                                
                                 Column(
                                     modifier = Modifier.fillMaxSize()
                                 ) {
@@ -291,11 +302,11 @@ fun SearchScreen(
                                             )
                                         }
                                     }
-                                    Box(
+                                    Column(
                                         modifier = Modifier
                                             .fillMaxSize()
-                                            .weight(1f),
-                                        contentAlignment = Alignment.Center
+                                            .weight(1f)
+                                            .verticalScroll(scrollState)
                                     ) {
                                         Card(
                                             modifier = Modifier
@@ -366,7 +377,7 @@ fun SearchScreen(
                                                     text = if (uiState.error == "Sin conexión a internet") {
                                                         "No se pudo establecer conexión con el servidor"
                                                     } else {
-                                                        "Ocurrió un error. Por favor intenta nuevamente"
+                                                        uiState.error ?: "Ocurrió un error. Por favor intenta nuevamente"
                                                     },
                                                     style = MaterialTheme.typography.bodyMedium,
                                                     color = cardTextColor.copy(alpha = 0.7f),
@@ -374,14 +385,17 @@ fun SearchScreen(
                                                 )
                                             }
                                         }
+                                        Spacer(modifier = Modifier.padding(bottom = 32.dp))
                                     }
                                 }
                             }
 
                             uiState.locations.isEmpty() && uiState.searchQuery.isNotBlank() -> {
                                 Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(top = 80.dp),
+                                    contentAlignment = Alignment.TopCenter
                                 ) {
                                     Column(
                                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -430,68 +444,73 @@ fun SearchScreen(
                             }
 
                             uiState.locations.isEmpty() -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp, vertical = 32.dp),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = cardColor
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(80.dp)
-                                    .background(
-                                        brush = Brush.radialGradient(
-                                            colors = listOf(
-                                                GradientColorsLight.first().copy(alpha = 0.2f),
-                                                GradientColorsLight.last().copy(alpha = 0.1f)
+                                val scrollState = rememberScrollState()
+                                
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .verticalScroll(scrollState)
+                                ) {
+                                    Spacer(modifier = Modifier.padding(top = 16.dp))
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 24.dp, vertical = 32.dp),
+                                        shape = RoundedCornerShape(20.dp),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = cardColor
+                                        )
+                                    ) {
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(32.dp),
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(80.dp)
+                                                    .background(
+                                                        brush = Brush.radialGradient(
+                                                            colors = listOf(
+                                                                GradientColorsLight.first().copy(alpha = 0.2f),
+                                                                GradientColorsLight.last().copy(alpha = 0.1f)
+                                                            )
+                                                        ),
+                                                        shape = RoundedCornerShape(40.dp)
+                                                    ),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Place,
+                                                    contentDescription = "Ubicación",
+                                                    tint = if (isSystemInDarkTheme()) {
+                                                                        IconBlueLight
+                                                    } else {
+                                                                        IconBlue
+                                                    },
+                                                    modifier = Modifier.size(48.dp)
+                                                )
+                                            }
+                                            Text(
+                                                text = "Escribe el nombre de una ciudad para comenzar",
+                                                style = MaterialTheme.typography.titleLarge,
+                                                fontWeight = FontWeight.Bold,
+                                                color = cardTextColor,
+                                                textAlign = TextAlign.Center
                                             )
-                                        ),
-                                        shape = RoundedCornerShape(40.dp)
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Place,
-                                    contentDescription = "Ubicación",
-                                    tint = if (isSystemInDarkTheme()) {
-                                                                IconBlueLight
-                                    } else {
-                                                                IconBlue
-                                    },
-                                    modifier = Modifier.size(48.dp)
-                                )
+                                            Text(
+                                                text = "Busca cualquier ciudad del mundo para ver su pronóstico del clima",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = cardTextColor.copy(alpha = 0.7f),
+                                                textAlign = TextAlign.Center
+                                            )
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.padding(bottom = 32.dp))
+                                }
                             }
-                            Text(
-                                text = "Escribe el nombre de una ciudad para comenzar",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = cardTextColor,
-                                textAlign = TextAlign.Center
-                            )
-                            Text(
-                                text = "Busca cualquier ciudad del mundo para ver su pronóstico del clima",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = cardTextColor.copy(alpha = 0.7f),
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-                }
-            }
 
                             else -> {
                                 LazyColumn(
@@ -630,6 +649,13 @@ private fun ExitApplicationConfirmationDialog(
     )
 }
 
+/**
+ * Animated weather icon component for the toolbar.
+ * Cycles through different weather icons with rotation animation.
+ *
+ * @param modifier Modifier for the icon
+ * @param iconColor Color for the icon
+ */
 @Composable
 private fun AnimatedWeatherIconInToolbar(
     modifier: Modifier = Modifier,
@@ -673,6 +699,15 @@ private fun AnimatedWeatherIconInToolbar(
     )
 }
 
+/**
+ * Card displaying a location search result.
+ *
+ * @param location Location data to display
+ * @param onClick Callback when card is clicked
+ * @param cardColor Background color for the card
+ * @param textColor Text color
+ * @param iconColor Icon color
+ */
 @Composable
 fun LocationSearchResultCard(
     location: Location,

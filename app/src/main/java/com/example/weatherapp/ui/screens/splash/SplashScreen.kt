@@ -37,6 +37,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.weatherapp.R
+import com.example.weatherapp.ui.theme.GradientColorsDark
+import com.example.weatherapp.ui.theme.GradientColorsLight
+import com.example.weatherapp.ui.theme.getTextColor
+import com.example.weatherapp.ui.theme.WeatherAppTheme
 import kotlinx.coroutines.delay
 
 private enum class SplashWeatherIconType(val iconResId: Int) {
@@ -52,43 +56,20 @@ private const val FADE_TRANSITION_MS = 200
 private const val ICON_CHANGE_DELAY_MS = 200L
 private const val SUN_ROTATION_DURATION_MS = 8000
 
-private val GRADIENT_COLORS_LIGHT = listOf(
-    Color(0xFF3B82F6),
-    Color(0xFF1E40AF)
-)
-
-private val GRADIENT_COLORS_DARK = listOf(
-    Color(0xFF1E3A8A),
-    Color(0xFF0F172A)
-)
-
 @Composable
 private fun getGradientColors(): List<Color> {
     return if (isSystemInDarkTheme()) {
-        GRADIENT_COLORS_DARK
+        GradientColorsDark
     } else {
-        GRADIENT_COLORS_LIGHT
+        GradientColorsLight
     }
 }
 
-@Composable
-private fun getIconColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFFE0E0E0)
-    } else {
-        Color.White
-    }
-}
-
-@Composable
-private fun getTextColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFFE0E0E0)
-    } else {
-        Color.White
-    }
-}
-
+/**
+ * Splash screen that displays app branding and navigates to search screen.
+ *
+ * @param onNavigateToSearch Callback to navigate to search screen
+ */
 @Composable
 fun SplashScreen(
     onNavigateToSearch: () -> Unit
@@ -118,7 +99,7 @@ private fun Splash(alpha: Float) {
     var isVisible by remember { mutableStateOf(true) }
     val weatherIcons = SplashWeatherIconType.entries
     val gradientColors = getGradientColors()
-    val iconColor = getIconColor()
+    val iconColor = getTextColor()
     val textColor = getTextColor()
 
     val sunRotation by rememberInfiniteTransition(label = "sunRotation").animateFloat(
@@ -189,6 +170,15 @@ private fun Splash(alpha: Float) {
     }
 }
 
+/**
+ * Weather icon component with optional rotation and alpha animation.
+ *
+ * @param icon Type of weather icon
+ * @param modifier Modifier for the icon
+ * @param alpha Alpha value for fade animation
+ * @param rotation Rotation angle in degrees
+ * @param iconColor Color for the icon
+ */
 @Composable
 private fun WeatherIcon(
     icon: SplashWeatherIconType,
@@ -218,11 +208,14 @@ private fun WeatherIcon(
     showBackground = true,
     backgroundColor = 0xFF3B82F6,
     showSystemUi = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_NO,
     device = "spec:width=411dp,height=891dp"
 )
 @Composable
 private fun SplashScreenLightPreview() {
-    Splash(alpha = 1f)
+    WeatherAppTheme(darkTheme = false) {
+        Splash(alpha = 1f)
+    }
 }
 
 @Preview(
@@ -235,5 +228,7 @@ private fun SplashScreenLightPreview() {
 )
 @Composable
 private fun SplashScreenDarkPreview() {
-    Splash(alpha = 1f)
+    WeatherAppTheme(darkTheme = true) {
+        Splash(alpha = 1f)
+    }
 }

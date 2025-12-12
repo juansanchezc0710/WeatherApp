@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -61,53 +62,28 @@ import com.example.weatherapp.R
 import com.example.weatherapp.domain.model.CurrentWeather
 import com.example.weatherapp.domain.model.ForecastDay
 import com.example.weatherapp.domain.model.Weather
+import com.example.weatherapp.ui.theme.GradientColorsDark
+import com.example.weatherapp.ui.theme.GradientColorsLight
+import com.example.weatherapp.ui.theme.IconBlue
+import com.example.weatherapp.ui.theme.IconBlueLight
+import com.example.weatherapp.ui.theme.IconOrange
+import com.example.weatherapp.ui.theme.IconOrangeDark
+import com.example.weatherapp.ui.theme.IconOrangeLight
+import com.example.weatherapp.ui.theme.ThermometerDark
+import com.example.weatherapp.ui.theme.ThermometerLight
+import com.example.weatherapp.ui.theme.getCardColor
+import com.example.weatherapp.ui.theme.getCardTextColor
+import com.example.weatherapp.ui.theme.getTextColor
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import com.example.weatherapp.ui.viewmodel.WeatherDetailsViewModel
 import org.koin.androidx.compose.koinViewModel
 
-private val GRADIENT_COLORS_LIGHT = listOf(
-    Color(0xFF3B82F6),
-    Color(0xFF1E40AF)
-)
-
-private val GRADIENT_COLORS_DARK = listOf(
-    Color(0xFF1E3A8A),
-    Color(0xFF0F172A)
-)
-
 @Composable
 private fun getGradientColors(): List<Color> {
     return if (isSystemInDarkTheme()) {
-        GRADIENT_COLORS_DARK
+        GradientColorsDark
     } else {
-        GRADIENT_COLORS_LIGHT
-    }
-}
-
-@Composable
-private fun getTextColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFFE0E0E0)
-    } else {
-        Color.White
-    }
-}
-
-@Composable
-private fun getCardColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFF1E3A8A).copy(alpha = 0.6f)
-    } else {
-        Color.White.copy(alpha = 0.9f)
-    }
-}
-
-@Composable
-private fun getCardTextColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color(0xFFE0E0E0)
-    } else {
-        Color(0xFF212121)
+        GradientColorsLight
     }
 }
 
@@ -212,6 +188,8 @@ fun WeatherDetailScreen(
                         }
 
                         uiState.error != null -> {
+                            val scrollState = rememberScrollState()
+                            
                             Column(
                                 modifier = Modifier.fillMaxSize()
                             ) {
@@ -241,16 +219,16 @@ fun WeatherDetailScreen(
                                         )
                                     }
                                 }
-                                Box(
+                                Column(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .weight(1f),
-                                    contentAlignment = Alignment.Center
+                                        .weight(1f)
+                                        .verticalScroll(scrollState)
                                 ) {
                                     Card(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(horizontal = 24.dp, vertical = 32.dp),
+                                            .padding(horizontal = 24.dp, vertical = 16.dp),
                                         shape = RoundedCornerShape(20.dp),
                                         colors = CardDefaults.cardColors(
                                             containerColor = cardColor
@@ -269,47 +247,62 @@ fun WeatherDetailScreen(
                                                     .background(
                                                         brush = Brush.radialGradient(
                                                             colors = listOf(
-                                                                Color(0xFFFF9800).copy(alpha = 0.2f),
-                                                                Color(0xFFFF5722).copy(alpha = 0.1f)
+                                                                IconOrange.copy(alpha = 0.2f),
+                                                                IconOrangeDark.copy(alpha = 0.1f)
                                                             )
                                                         ),
                                                         shape = RoundedCornerShape(40.dp)
                                                     ),
                                                 contentAlignment = Alignment.Center
                                             ) {
-                                                Icon(
-                                                    painter = painterResource(id = R.drawable.ic_no_internet_connection),
-                                                    contentDescription = "Sin conexión",
-                                                    tint = if (isSystemInDarkTheme()) {
-                                                        Color(0xFFFFB74D)
-                                                    } else {
-                                                        Color(0xFFFF9800)
-                                                    },
-                                                    modifier = Modifier.size(48.dp)
-                                                )
+                                                if (uiState.error == "Sin conexión a internet") {
+                                                    Icon(
+                                                        painter = painterResource(id = R.drawable.ic_no_internet_connection),
+                                                        contentDescription = "Sin conexión",
+                                                        tint = if (isSystemInDarkTheme()) {
+                                                            IconOrangeLight
+                                                        } else {
+                                                            IconOrange
+                                                        },
+                                                        modifier = Modifier.size(48.dp)
+                                                    )
+                                                } else {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Warning,
+                                                        contentDescription = "Error",
+                                                        tint = if (isSystemInDarkTheme()) {
+                                                            IconOrangeLight
+                                                        } else {
+                                                            IconOrange
+                                                        },
+                                                        modifier = Modifier.size(48.dp)
+                                                    )
+                                                }
                                             }
                                             Text(
-                                                text = "Sin conexión a internet",
+                                                text = if (uiState.error == "Sin conexión a internet") {
+                                                    "Sin conexión a internet"
+                                                } else {
+                                                    "Error"
+                                                },
                                                 style = MaterialTheme.typography.titleLarge,
                                                 fontWeight = FontWeight.Bold,
                                                 color = cardTextColor,
                                                 textAlign = TextAlign.Center
                                             )
                                             Text(
-                                                text = uiState.error
-                                                    ?: "No se pudo cargar el pronóstico del clima",
+                                                text = if (uiState.error == "Sin conexión a internet") {
+                                                    "No se pudo establecer conexión con el servidor"
+                                                } else {
+                                                    uiState.error ?: "Ocurrió un error. Por favor intenta nuevamente"
+                                                },
                                                 style = MaterialTheme.typography.bodyMedium,
                                                 color = cardTextColor.copy(alpha = 0.7f),
                                                 textAlign = TextAlign.Center
                                             )
-                                            Text(
-                                                text = "Verifica tu conexión e intenta nuevamente",
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = cardTextColor.copy(alpha = 0.6f),
-                                                textAlign = TextAlign.Center
-                                            )
                                         }
                                     }
+                                    Spacer(modifier = Modifier.padding(bottom = 32.dp))
                                 }
                             }
                         }
@@ -332,7 +325,7 @@ fun WeatherDetailScreen(
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .verticalScroll(rememberScrollState()),
-                                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                                            verticalArrangement = Arrangement.spacedBy(8.dp)
                                         ) {
                                             WeatherLocationHeader(
                                                 weatherData.locationName,
@@ -356,7 +349,7 @@ fun WeatherDetailScreen(
                                                 style = MaterialTheme.typography.titleLarge,
                                                 fontWeight = FontWeight.Bold,
                                                 color = textColor,
-                                                modifier = Modifier.padding(bottom = 8.dp)
+                                                modifier = Modifier.padding(bottom = 4.dp)
                                             )
                                             forecastDays.forEach { forecastDay ->
                                                 WeatherForecastDayCard(
@@ -370,8 +363,8 @@ fun WeatherDetailScreen(
                                 } else {
                                     LazyColumn(
                                         modifier = Modifier.fillMaxSize(),
-                                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                                        contentPadding = PaddingValues(vertical = 8.dp)
+                                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                                        contentPadding = PaddingValues(vertical = 4.dp)
                                     ) {
                                         item {
                                             WeatherLocationHeader(
@@ -397,7 +390,7 @@ fun WeatherDetailScreen(
                                                 color = textColor,
                                                 modifier = Modifier.padding(
                                                     horizontal = 24.dp,
-                                                    vertical = 16.dp
+                                                    vertical = 8.dp
                                                 )
                                             )
                                         }
@@ -475,6 +468,12 @@ fun WeatherDetailScreen(
     }
 }
 
+/**
+ * Header component displaying the location name.
+ *
+ * @param locationName Name of the location
+ * @param textColor Color for the text
+ */
 @Composable
 private fun WeatherLocationHeader(
     locationName: String,
@@ -483,45 +482,53 @@ private fun WeatherLocationHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .padding(horizontal = 24.dp, vertical = 8.dp)
     ) {
         Text(
             text = locationName,
-            style = MaterialTheme.typography.headlineLarge,
+            style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = textColor
         )
     }
 }
 
+/**
+ * Card displaying current weather information.
+ *
+ * @param current Current weather data
+ * @param textColor Color for text elements
+ * @param cardColor Background color for the card
+ * @param cardTextColor Text color for card content
+ */
 @Composable
 private fun CurrentWeatherInfoCard(
     current: CurrentWeather,
     textColor: Color,
-    cardColor: Color = getCardColor(),
-    cardTextColor: Color = getCardTextColor()
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = getCardColor()
-        )
+        cardColor: Color = getCardColor(),
+        cardTextColor: Color = getCardTextColor()
     ) {
-        Column(
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(horizontal = 24.dp, vertical = 8.dp),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = cardColor
+            )
         ) {
-            Text(
-                text = "Hoy",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = getCardTextColor(),
-                modifier = Modifier.padding(bottom = 12.dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Hoy",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = cardTextColor,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
 
             AsyncImage(
@@ -530,21 +537,21 @@ private fun CurrentWeatherInfoCard(
                 modifier = Modifier.size(80.dp),
                 contentScale = ContentScale.Fit
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = "${current.temperature.toInt()}°C",
                 style = MaterialTheme.typography.displayMedium,
                 fontWeight = FontWeight.Bold,
-                color = getCardTextColor()
+                color = cardTextColor
             )
 
             Text(
                 text = current.condition,
                 style = MaterialTheme.typography.titleMedium,
-                color = getCardTextColor().copy(alpha = 0.8f),
+                color = cardTextColor.copy(alpha = 0.8f),
                 fontWeight = FontWeight.Normal,
-                modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
+                modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
             )
 
             Row(
@@ -580,6 +587,16 @@ private fun CurrentWeatherInfoCard(
     }
 }
 
+/**
+ * Card displaying a weather detail (temperature, humidity, wind).
+ *
+ * @param iconType Type of icon to display
+ * @param label Label text
+ * @param value Value text
+ * @param iconColor Color for the icon
+ * @param cardColor Background color
+ * @param textColor Text color
+ */
 @Composable
 private fun WeatherDetailInfoCard(
     iconType: WeatherDetailIconType,
@@ -623,17 +640,17 @@ private fun getWeatherDetailIconColor(iconType: WeatherDetailIconType): Color {
     return when (iconType) {
         WeatherDetailIconType.THERMOMETER -> {
             if (isSystemInDarkTheme()) {
-                Color(0xFFFF6B4A)
+                ThermometerDark
             } else {
-                Color(0xFFFF5722)
+                ThermometerLight
             }
         }
 
         WeatherDetailIconType.WATER_DROP -> {
             if (isSystemInDarkTheme()) {
-                Color(0xFF64B5F6)
+                IconBlueLight
             } else {
-                Color(0xFF2196F3)
+                IconBlue
             }
         }
 
@@ -647,6 +664,13 @@ private fun getWeatherDetailIconColor(iconType: WeatherDetailIconType): Color {
     }
 }
 
+/**
+ * Icon component for weather details.
+ *
+ * @param iconType Type of icon to display
+ * @param modifier Modifier for the icon
+ * @param tint Color tint for the icon
+ */
 @Composable
 private fun WeatherDetailIcon(
     iconType: WeatherDetailIconType,
@@ -665,6 +689,13 @@ private fun WeatherDetailIcon(
     )
 }
 
+/**
+ * Card displaying forecast information for a single day.
+ *
+ * @param forecastDay Forecast data for the day
+ * @param cardColor Background color for the card
+ * @param textColor Text color
+ */
 @Composable
 private fun WeatherForecastDayCard(
     forecastDay: ForecastDay,
@@ -761,6 +792,12 @@ private fun WeatherForecastDayCard(
     }
 }
 
+/**
+ * Formats a date string from "YYYY-MM-DD" to "DD Mon" format.
+ *
+ * @param dateString Date string in "YYYY-MM-DD" format
+ * @return Formatted date string
+ */
 private fun formatForecastDate(dateString: String): String {
     return try {
         val parts = dateString.split("-")

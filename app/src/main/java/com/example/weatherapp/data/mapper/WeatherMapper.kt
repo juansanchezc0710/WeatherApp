@@ -16,6 +16,8 @@ object WeatherMapper {
     
     /**
      * Maps a data Location to a domain Location.
+     *
+     * @return Domain Location with id, name, and country
      */
     fun DataLocation.toDomain(): DomainLocation {
         return DomainLocation(
@@ -27,6 +29,8 @@ object WeatherMapper {
     
     /**
      * Maps a WeatherResponse to a domain Weather model.
+     *
+     * @return Domain Weather with location name, current weather, and forecast
      */
     fun WeatherResponse.toDomain(): Weather {
         return Weather(
@@ -38,6 +42,8 @@ object WeatherMapper {
     
     /**
      * Maps a data CurrentWeather to a domain CurrentWeather.
+     *
+     * @return Domain CurrentWeather with mapped fields
      */
     private fun DataCurrentWeather.toDomain(): CurrentWeather {
         return CurrentWeather(
@@ -53,6 +59,8 @@ object WeatherMapper {
     
     /**
      * Maps a data ForecastDay to a domain ForecastDay.
+     *
+     * @return Domain ForecastDay with mapped fields
      */
     private fun DataForecastDay.toDomain(): ForecastDay {
         return ForecastDay(

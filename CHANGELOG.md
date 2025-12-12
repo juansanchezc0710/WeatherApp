@@ -2,6 +2,95 @@
 
 ## [Unreleased]
 
+### Refactor
+- Revisión de código y mejoras
+- Actualización de documentación
+- Mejoras en cobertura de tests
+
+### [Task #24] Configurar API Key y ProGuard
+- API Key configurada en BuildConfig con valor hardcodeado
+- SigningConfigs configurados para debug y release (usando debug keystore)
+- ProGuard configurado para modo release (reglas preparadas, minify deshabilitado)
+- Reglas ProGuard configuradas para Retrofit, Gson, OkHttp, Koin
+- Reglas para preservar BuildConfig, NetworkModule y modelos de datos
+- Reglas optimizadas con -dontwarn para clases internas de librerías
+- testOptions configurados para unit tests (isReturnDefaultValues = true)
+
+### [Task #22] Agregar pruebas unitarias
+- JUnit 5 configurado (junit-jupiter 5.10.2)
+- MockK configurado (1.13.10) para mocking
+- kotlinx-coroutines-test agregado para testing de coroutines
+- Configuración de JUnit Platform en build.gradle.kts
+- Tests organizados con @Nested y @DisplayName para mejor legibilidad
+- **Repository Tests:**
+  - WeatherRepositoryImplTest con grupos: "When searching locations", "When getting weather forecast"
+- **Use Case Tests:**
+  - SearchLocationsUseCaseTest con pruebas para queries vacíos, éxito y errores
+  - GetWeatherForecastUseCaseTest con pruebas para éxito y errores
+- **Mapper Tests:**
+  - WeatherMapperTest creado con grupos: "When mapping Location to domain", "When mapping WeatherResponse to domain"
+  - Pruebas para mapeo de Location, WeatherResponse, CurrentWeather y ForecastDay
+- **ViewModel Tests:**
+  - SearchViewModelTest creado con grupos: "When search query changes", "When performing location search", "When refreshing location search"
+  - Pruebas para debounce, manejo de errores, timeouts y estados de UI
+  - WeatherDetailsViewModelTest creado con grupos: "When loading weather forecast data", "When refreshing weather forecast data"
+  - Pruebas para carga de datos, manejo de errores y validaciones
+
+### [Task #21] Crear utilidad de logs
+- Logger object creado en `util/Logger.kt`
+- Métodos para diferentes niveles de log: d(), i(), w(), e()
+- Método e() con soporte para excepciones
+- Tag por defecto configurado como "WeatherApp"
+- Truncado automático de tags que excedan 23 caracteres (límite de Android)
+- Implementación simple basada en android.util.Log
+- Logs implementados en ViewModels (SearchViewModel, WeatherDetailsViewModel)
+- Logs implementados en Repository (WeatherRepositoryImpl)
+- Logs implementados en Use Cases (SearchLocationsUseCase, GetWeatherForecastUseCase)
+- Logs implementados en WeatherApp (inicialización de Koin)
+- Logs implementados en MainActivity (ciclo de vida)
+- Logs estratégicos para operaciones críticas, errores y validaciones
+
+### [Task #25] Crear icono de la app
+- Icono adaptativo creado con gradiente azul de fondo
+- Fondo diferenciado para modo claro (#3B82F6 a #1E40AF) y modo oscuro (#1E3A8A a #0F172A)
+- Configuración en mipmap-anydpi-v26 para iconos adaptativos
+- Soporte para icono cuadrado y redondo
+
+### [Task #20] Ajustar tema y colores
+- Esquema de colores azules personalizado para la app del clima
+- DarkColorScheme con fondos oscuros (DarkBlueOuter, DarkBlueEdge) y textos blancos
+- LightColorScheme con fondos claros (LightBlueOuter, LightBlueEdge) y textos negros
+- Colores primarios azules (PrimaryBlue, LightBlue) configurados
+- Dynamic color deshabilitado para mantener colores personalizados consistentes
+
+### [Task #15] Crear casos de uso
+- SearchLocationsUseCase creado para encapsular lógica de búsqueda de ubicaciones
+- GetWeatherForecastUseCase creado para encapsular lógica de obtención de pronóstico
+- Operador invoke implementado en ambos use cases para uso como funciones
+- Validación de queries vacíos en SearchLocationsUseCase
+- UseCaseModule creado para inyección de dependencias con Koin
+- Use cases registrados como factory en Koin
+- Integración de useCaseModule en appModule
+
+### [Task #14] Configurar Koin para el repositorio
+- RepositoryModule creado para inyección de dependencias del repositorio
+- WeatherRepositoryImpl registrado como singleton en Koin
+- Integración de repositoryModule en appModule
+- Dependencias inyectadas: WeatherApiService y API Key
+
+### [Task #13] Implementar el repositorio
+- WeatherRepositoryImpl creado implementando WeatherRepository
+- Método searchLocations() para búsqueda de ubicaciones con mapeo a dominio
+- Método getWeatherForecast() para obtener pronóstico con mapeo a dominio
+- Manejo de errores con Result<T>
+- Uso de WeatherMapper para convertir modelos de data a domain
+
+### [Task #12] Crear interfaz del repositorio
+- WeatherRepository interface creada en domain layer
+- Método searchLocations() definido retornando Result<List<Location>>
+- Método getWeatherForecast() definido retornando Result<Weather>
+- Interfaz siguiendo Dependency Inversion Principle
+
 ### [Task #17] Crear ViewModel para detalles del clima
 - WeatherDetailsViewModel creado para gestionar el estado y lógica de la pantalla de detalles
 - WeatherDetailsUiState como data class con weatherData, isLoading y error

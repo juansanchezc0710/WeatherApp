@@ -1,5 +1,6 @@
 package com.example.weatherapp.data.api
 
+import com.example.weatherapp.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -9,10 +10,14 @@ import java.util.concurrent.TimeUnit
 object NetworkModule {
     
     private const val BASE_URL = "https://api.weatherapi.com/v1/"
-    const val API_KEY = "de5553176da64306b86153651221606"
+    val API_KEY: String = BuildConfig.WEATHER_API_KEY
     
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
+        level = if (BuildConfig.DEBUG) {
+            HttpLoggingInterceptor.Level.BODY
+        } else {
+            HttpLoggingInterceptor.Level.NONE
+        }
     }
     
     private val okHttpClient = OkHttpClient.Builder()

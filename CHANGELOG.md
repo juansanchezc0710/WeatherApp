@@ -2,6 +2,35 @@
 
 ## [Unreleased]
 
+### [Task #24] Configurar API Key y ProGuard
+- API Key configurada en BuildConfig con valor hardcodeado
+- SigningConfigs configurados para debug y release (usando debug keystore)
+- ProGuard configurado para modo release (reglas preparadas, minify deshabilitado)
+- Reglas ProGuard configuradas para Retrofit, Gson, OkHttp, Koin
+- Reglas para preservar BuildConfig, NetworkModule y modelos de datos
+- Reglas optimizadas con -dontwarn para clases internas de librerías
+- testOptions configurados para unit tests (isReturnDefaultValues = true)
+
+### [Task #22] Agregar pruebas unitarias
+- JUnit 5 configurado (junit-jupiter 5.10.2)
+- MockK configurado (1.13.10) para mocking
+- kotlinx-coroutines-test agregado para testing de coroutines
+- Configuración de JUnit Platform en build.gradle.kts
+- Tests organizados con @Nested y @DisplayName para mejor legibilidad
+- **Repository Tests:**
+  - WeatherRepositoryImplTest con grupos: "When searching locations", "When getting weather forecast"
+- **Use Case Tests:**
+  - SearchLocationsUseCaseTest con pruebas para queries vacíos, éxito y errores
+  - GetWeatherForecastUseCaseTest con pruebas para éxito y errores
+- **Mapper Tests:**
+  - WeatherMapperTest creado con grupos: "When mapping Location to domain", "When mapping WeatherResponse to domain"
+  - Pruebas para mapeo de Location, WeatherResponse, CurrentWeather y ForecastDay
+- **ViewModel Tests:**
+  - SearchViewModelTest creado con grupos: "When search query changes", "When performing location search", "When refreshing location search"
+  - Pruebas para debounce, manejo de errores, timeouts y estados de UI
+  - WeatherDetailsViewModelTest creado con grupos: "When loading weather forecast data", "When refreshing weather forecast data"
+  - Pruebas para carga de datos, manejo de errores y validaciones
+
 ### [Task #21] Crear utilidad de logs
 - Logger object creado en `util/Logger.kt`
 - Métodos para diferentes niveles de log: d(), i(), w(), e()

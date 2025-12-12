@@ -42,16 +42,6 @@ object Logger {
     }
     
     /**
-     * Logs an ERROR message.
-     *
-     * @param message The message to log
-     * @param tag Optional tag (defaults to DEFAULT_TAG)
-     */
-    fun e(message: String, tag: String = DEFAULT_TAG) {
-        Log.e(truncateTag(tag), message)
-    }
-    
-    /**
      * Logs an ERROR message with an exception.
      *
      * @param message The message to log
@@ -71,7 +61,7 @@ object Logger {
      */
     private fun truncateTag(tag: String): String {
         return if (tag.length > MAX_TAG_LENGTH) {
-            tag.substring(0, MAX_TAG_LENGTH)
+            tag.take(MAX_TAG_LENGTH)
         } else {
             tag
         }

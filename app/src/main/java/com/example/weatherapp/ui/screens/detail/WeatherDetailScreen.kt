@@ -188,6 +188,8 @@ fun WeatherDetailScreen(
                         }
 
                         uiState.error != null -> {
+                            val scrollState = rememberScrollState()
+                            
                             Column(
                                 modifier = Modifier.fillMaxSize()
                             ) {
@@ -217,16 +219,16 @@ fun WeatherDetailScreen(
                                         )
                                     }
                                 }
-                                Box(
+                                Column(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .weight(1f),
-                                    contentAlignment = Alignment.Center
+                                        .weight(1f)
+                                        .verticalScroll(scrollState)
                                 ) {
                                     Card(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(horizontal = 24.dp, vertical = 32.dp),
+                                            .padding(horizontal = 24.dp, vertical = 16.dp),
                                         shape = RoundedCornerShape(20.dp),
                                         colors = CardDefaults.cardColors(
                                             containerColor = cardColor
@@ -292,7 +294,7 @@ fun WeatherDetailScreen(
                                                 text = if (uiState.error == "Sin conexión a internet") {
                                                     "No se pudo establecer conexión con el servidor"
                                                 } else {
-                                                    "Ocurrió un error. Por favor intenta nuevamente"
+                                                    uiState.error ?: "Ocurrió un error. Por favor intenta nuevamente"
                                                 },
                                                 style = MaterialTheme.typography.bodyMedium,
                                                 color = cardTextColor.copy(alpha = 0.7f),
@@ -300,6 +302,7 @@ fun WeatherDetailScreen(
                                             )
                                         }
                                     }
+                                    Spacer(modifier = Modifier.padding(bottom = 32.dp))
                                 }
                             }
                         }
@@ -322,7 +325,7 @@ fun WeatherDetailScreen(
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .verticalScroll(rememberScrollState()),
-                                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                                            verticalArrangement = Arrangement.spacedBy(8.dp)
                                         ) {
                                             WeatherLocationHeader(
                                                 weatherData.locationName,
@@ -346,7 +349,7 @@ fun WeatherDetailScreen(
                                                 style = MaterialTheme.typography.titleLarge,
                                                 fontWeight = FontWeight.Bold,
                                                 color = textColor,
-                                                modifier = Modifier.padding(bottom = 8.dp)
+                                                modifier = Modifier.padding(bottom = 4.dp)
                                             )
                                             forecastDays.forEach { forecastDay ->
                                                 WeatherForecastDayCard(
@@ -360,8 +363,8 @@ fun WeatherDetailScreen(
                                 } else {
                                     LazyColumn(
                                         modifier = Modifier.fillMaxSize(),
-                                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                                        contentPadding = PaddingValues(vertical = 8.dp)
+                                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                                        contentPadding = PaddingValues(vertical = 4.dp)
                                     ) {
                                         item {
                                             WeatherLocationHeader(
@@ -387,7 +390,7 @@ fun WeatherDetailScreen(
                                                 color = textColor,
                                                 modifier = Modifier.padding(
                                                     horizontal = 24.dp,
-                                                    vertical = 16.dp
+                                                    vertical = 8.dp
                                                 )
                                             )
                                         }
@@ -465,6 +468,12 @@ fun WeatherDetailScreen(
     }
 }
 
+/**
+ * Header component displaying the location name.
+ *
+ * @param locationName Name of the location
+ * @param textColor Color for the text
+ */
 @Composable
 private fun WeatherLocationHeader(
     locationName: String,
@@ -473,17 +482,25 @@ private fun WeatherLocationHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .padding(horizontal = 24.dp, vertical = 8.dp)
     ) {
         Text(
             text = locationName,
-            style = MaterialTheme.typography.headlineLarge,
+            style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = textColor
         )
     }
 }
 
+/**
+ * Card displaying current weather information.
+ *
+ * @param current Current weather data
+ * @param textColor Color for text elements
+ * @param cardColor Background color for the card
+ * @param cardTextColor Text color for card content
+ */
 @Composable
 private fun CurrentWeatherInfoCard(
     current: CurrentWeather,
@@ -494,7 +511,7 @@ private fun CurrentWeatherInfoCard(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 16.dp),
+                .padding(horizontal = 24.dp, vertical = 8.dp),
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(
                 containerColor = cardColor
@@ -503,7 +520,7 @@ private fun CurrentWeatherInfoCard(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp),
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -511,7 +528,7 @@ private fun CurrentWeatherInfoCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = cardTextColor,
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier.padding(bottom = 8.dp)
             )
 
             AsyncImage(
@@ -520,7 +537,7 @@ private fun CurrentWeatherInfoCard(
                 modifier = Modifier.size(80.dp),
                 contentScale = ContentScale.Fit
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = "${current.temperature.toInt()}°C",
@@ -534,7 +551,7 @@ private fun CurrentWeatherInfoCard(
                 style = MaterialTheme.typography.titleMedium,
                 color = cardTextColor.copy(alpha = 0.8f),
                 fontWeight = FontWeight.Normal,
-                modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
+                modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
             )
 
             Row(
@@ -570,6 +587,16 @@ private fun CurrentWeatherInfoCard(
     }
 }
 
+/**
+ * Card displaying a weather detail (temperature, humidity, wind).
+ *
+ * @param iconType Type of icon to display
+ * @param label Label text
+ * @param value Value text
+ * @param iconColor Color for the icon
+ * @param cardColor Background color
+ * @param textColor Text color
+ */
 @Composable
 private fun WeatherDetailInfoCard(
     iconType: WeatherDetailIconType,
@@ -637,6 +664,13 @@ private fun getWeatherDetailIconColor(iconType: WeatherDetailIconType): Color {
     }
 }
 
+/**
+ * Icon component for weather details.
+ *
+ * @param iconType Type of icon to display
+ * @param modifier Modifier for the icon
+ * @param tint Color tint for the icon
+ */
 @Composable
 private fun WeatherDetailIcon(
     iconType: WeatherDetailIconType,
@@ -655,6 +689,13 @@ private fun WeatherDetailIcon(
     )
 }
 
+/**
+ * Card displaying forecast information for a single day.
+ *
+ * @param forecastDay Forecast data for the day
+ * @param cardColor Background color for the card
+ * @param textColor Text color
+ */
 @Composable
 private fun WeatherForecastDayCard(
     forecastDay: ForecastDay,
@@ -751,6 +792,12 @@ private fun WeatherForecastDayCard(
     }
 }
 
+/**
+ * Formats a date string from "YYYY-MM-DD" to "DD Mon" format.
+ *
+ * @param dateString Date string in "YYYY-MM-DD" format
+ * @return Formatted date string
+ */
 private fun formatForecastDate(dateString: String): String {
     return try {
         val parts = dateString.split("-")

@@ -7,6 +7,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
+/**
+ * Network module for configuring Retrofit and OkHttp client.
+ * Provides the WeatherApiService instance for API calls.
+ */
 object NetworkModule {
     
     private const val BASE_URL = "https://api.weatherapi.com/v1/"

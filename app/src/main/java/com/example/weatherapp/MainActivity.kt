@@ -13,6 +13,10 @@ import com.example.weatherapp.navigation.NavGraph
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import com.example.weatherapp.util.Logger
 
+/**
+ * Main activity of the WeatherApp application.
+ * Initializes the UI and navigation graph.
+ */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -65,6 +65,11 @@ private fun getGradientColors(): List<Color> {
     }
 }
 
+/**
+ * Splash screen that displays app branding and navigates to search screen.
+ *
+ * @param onNavigateToSearch Callback to navigate to search screen
+ */
 @Composable
 fun SplashScreen(
     onNavigateToSearch: () -> Unit
@@ -165,6 +170,15 @@ private fun Splash(alpha: Float) {
     }
 }
 
+/**
+ * Weather icon component with optional rotation and alpha animation.
+ *
+ * @param icon Type of weather icon
+ * @param modifier Modifier for the icon
+ * @param alpha Alpha value for fade animation
+ * @param rotation Rotation angle in degrees
+ * @param iconColor Color for the icon
+ */
 @Composable
 private fun WeatherIcon(
     icon: SplashWeatherIconType,

@@ -8,21 +8,20 @@ import com.example.weatherapp.util.Logger
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
+import java.io.IOException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
-import java.io.IOException
-import java.io.InterruptedIOException
-import java.net.ConnectException
-import java.net.NoRouteToHostException
-import java.net.SocketException
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
 
 /**
  * UI State for the search screen.
+ *
+ * @property searchQuery Current search query text
+ * @property locations List of found locations
+ * @property isLoading Whether search is in progress
+ * @property error Error message if any
  */
 data class SearchUiState(
     val searchQuery: String = "",
@@ -35,6 +34,9 @@ data class SearchUiState(
  * ViewModel for the search screen.
  * Manages the state and business logic for location search.
  * Dependencies are injected via Koin.
+ *
+ * @property apiService API service for weather data
+ * @property apiKey API key for WeatherAPI authentication
  */
 class SearchViewModel(
     private val apiService: WeatherApiService,
@@ -49,6 +51,8 @@ class SearchViewModel(
     
     /**
      * Handles search query changes with debounce.
+     *
+     * @param query New search query text
      */
     fun onSearchQueryChanged(query: String) {
         Logger.d("Search query changed: '$query'", "SearchViewModel")
@@ -78,6 +82,8 @@ class SearchViewModel(
     
     /**
      * Performs the search operation.
+     *
+     * @param query Search query string
      */
     private suspend fun performLocationSearch(query: String) {
         Logger.d("Performing location search for: '$query'", "SearchViewModel")
@@ -105,7 +111,16 @@ class SearchViewModel(
             )
         } catch (e: Exception) {
             Logger.e("Error searching locations for '$query'", e, "SearchViewModel")
-            val errorMessage = getErrorMessage(e)
+            val errorMessage = if (e is IOException) {
+                val text = (e.message?.lowercase() ?: "") + e.javaClass.simpleName.lowercase()
+                if (text.contains("host") || text.contains("connect") || text.contains("ssl")) {
+                    "Sin conexión a internet"
+                } else {
+                    "Error de conexión"
+                }
+            } else {
+                e.message ?: "Error al buscar ubicaciones"
+            }
             _uiState.value = _uiState.value.copy(
                 locations = emptyList(),
                 isLoading = false,
@@ -129,33 +144,4 @@ class SearchViewModel(
         }
     }
     
-    /**
-     * Gets a user-friendly error message based on the exception type.
-     */
-    private fun getErrorMessage(exception: Exception): String {
-        return when (exception) {
-            is UnknownHostException,
-            is SocketTimeoutException,
-            is ConnectException,
-            is SocketException,
-            is NoRouteToHostException,
-            is InterruptedIOException -> {
-                "Sin conexión a internet"
-            }
-            is IOException -> {
-                val message = exception.message?.lowercase() ?: ""
-                if (message.contains("unable to resolve host") || 
-                    message.contains("failed to connect") ||
-                    message.contains("network is unreachable") ||
-                    message.contains("no route to host")) {
-                    "Sin conexión a internet"
-                } else {
-                    "Error de conexión"
-                }
-            }
-            else -> {
-                exception.message ?: "Error al buscar ubicaciones"
-            }
-        }
-    }
 }

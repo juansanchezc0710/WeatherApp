@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Refactor
+- Revisión de código y mejoras
+- Actualización de documentación
+- Mejoras en cobertura de tests
+
 ### [Task #24] Configurar API Key y ProGuard
 - API Key configurada en BuildConfig con valor hardcodeado
 - SigningConfigs configurados para debug y release (usando debug keystore)

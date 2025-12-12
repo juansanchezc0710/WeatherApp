@@ -12,10 +12,26 @@ import com.example.weatherapp.ui.screens.splash.SplashScreen
 
 /**
  * Sealed class representing all screens in the app.
+ *
+ * @property route Navigation route for the screen
  */
 sealed class Screen(val route: String) {
+    /**
+     * Splash screen route.
+     */
     object Splash : Screen("splash")
+    
+    /**
+     * Search screen route.
+     */
     object Search : Screen("search")
+    
+    /**
+     * Details screen route with location name parameter.
+     *
+     * @param locationName Name of the location to display
+     * @return Complete route string with location name
+     */
     object Details : Screen("details/{locationName}") {
         fun createRoute(locationName: String) = "details/$locationName"
     }

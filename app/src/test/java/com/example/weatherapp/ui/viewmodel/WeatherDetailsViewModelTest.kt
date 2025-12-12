@@ -27,6 +27,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.io.IOException
 import java.net.UnknownHostException
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -101,6 +102,34 @@ class WeatherDetailsViewModelTest {
         fun `loadWeatherForecastData sets network error for UnknownHostException`() = runTest {
             val locationName = "Bogotá"
             val error = UnknownHostException("Unable to resolve host")
+
+            coEvery { apiService.getForecast(apiKey, locationName, 3) } throws error
+
+            viewModel.loadWeatherForecastData(locationName)
+            advanceUntilIdle()
+
+            assertEquals("Sin conexión a internet", viewModel.uiState.value.error)
+        }
+
+        @Test
+        @DisplayName("should set network error for IOException with SSL handshake")
+        fun `loadWeatherForecastData sets network error for SSLHandshakeException`() = runTest {
+            val locationName = "Bogotá"
+            val error = IOException("SSL handshake aborted")
+
+            coEvery { apiService.getForecast(apiKey, locationName, 3) } throws error
+
+            viewModel.loadWeatherForecastData(locationName)
+            advanceUntilIdle()
+
+            assertEquals("Sin conexión a internet", viewModel.uiState.value.error)
+        }
+
+        @Test
+        @DisplayName("should set network error for IOException with connection error")
+        fun `loadWeatherForecastData sets network error for connection IOException`() = runTest {
+            val locationName = "Bogotá"
+            val error = IOException("Failed to connect to host")
 
             coEvery { apiService.getForecast(apiKey, locationName, 3) } throws error
 
